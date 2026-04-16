@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/Ropooot Agri/agri_ropot/linux"
+    "cmake.sourceDirectory": "D:/Ropooot Agri/agri_ropot/linux",
+    "cmake.ignoreCMakeListsMissing": true
 }
