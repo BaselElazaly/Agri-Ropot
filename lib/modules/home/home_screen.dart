@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:agre_lens_app/modules/home/all%20detect%20plants/all_detect_plants.dart';
 import 'package:agre_lens_app/modules/home/search/search_screen.dart';
 import 'package:agre_lens_app/shared/styles/colors.dart';
 import 'package:flutter/material.dart';
@@ -109,17 +110,17 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 5),
                 // ... جزء الـ All Floors ...
                 InkWell(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AllPlantScreen())),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AllDetectPlantScreen())),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('All Floors', style: GoogleFonts.reemKufi(fontSize: 18, fontWeight: FontWeight.w600, color: const Color(0xFF414042))),
+                      Text('All Detect Plants', style: GoogleFonts.reemKufi(fontSize: 18, fontWeight: FontWeight.w600, color: const Color(0xFF414042))),
                       const Icon(Icons.keyboard_arrow_right, color: Color(0xFF414042))
                     ],
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(height: 160, child: floorPlantBuilder()),
+                SizedBox(height: 160, child: detectionBuilder()),
                 const SizedBox(height: 10),
                 Text('Sensors Reading', style: GoogleFonts.reemKufi(fontSize: 18, fontWeight: FontWeight.w600, color: const Color(0xFF414042))),
                 const SizedBox(height: 10),
@@ -128,11 +129,11 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(child: sensorReading1(sensorName: 'Water', sensorStats: cubit.waterLevel)),
+                      Expanded(child: sensorReading2(sensorName: 'Temperature', sensorStats: cubit.temperature)),
                       const SizedBox(width: 10),
-                      Expanded(child: sensorReading1(sensorName: 'Ph', sensorStats: cubit.phLevel)),
+                      Expanded(child: sensorReading1(sensorName: 'Smoke Level', sensorStats: cubit.smokeLevel)),
                       const SizedBox(width: 10),
-                      Expanded(child: sensorReading2(sensorName: 'DHT', sensorStats: cubit.dhtTemp)),
+                      Expanded(child: sensorReading1(sensorName: 'Soil Moisture', sensorStats: cubit.soilMoisture)),
                     ],
                   ),
                 )

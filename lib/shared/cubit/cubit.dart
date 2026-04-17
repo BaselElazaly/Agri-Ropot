@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:agre_lens_app/models/last_five_detetct_model.dart';
 import 'package:agre_lens_app/modules/history/history_screen.dart';
 import 'package:agre_lens_app/modules/home/home_screen.dart';
 import 'package:agre_lens_app/modules/scan/scan_screen.dart';
@@ -38,9 +39,7 @@ class AppCubit extends Cubit<AppStates> {
   void _init() async {
     await loadSavedControl();
     getSensorReadings();
-    Timer.periodic(const Duration(seconds: 60), (timer) {
-      getSensorReadings();
-    });
+    getLastFiveDetects();
     getUserInfo();
     
   }
@@ -52,9 +51,9 @@ final Dio _dio = Dio(BaseOptions(
     baseUrl: 'https://finalgraduationproject.runasp.net/api/',
     receiveDataWhenStatusError: true,
   ));
-int waterLevel = 0;
-int phLevel = 0;
-int dhtTemp = 0;
+int smokeLevel = 0;
+int soilMoisture = 0;
+double temperature = 0;
 
 void getSensorReadings() {
   emit(AppGetSensorsLoadingState());
@@ -72,9 +71,9 @@ void getSensorReadings() {
   ).then((value) {
     debugPrint("✅ SUCCESS DATA: ${value.data}");
     
-    waterLevel = value.data['water'] ?? 0;
-    phLevel = value.data['ph'] ?? 0;
-    dhtTemp = value.data['dht'] ?? 0;
+    smokeLevel = value.data['smokeLevel'] ?? 0;
+    soilMoisture = value.data['soilMoisture'] ?? 0;
+    temperature = value.data['temperature'] ?? 0.0;
     
     emit(AppGetSensorsSuccessState());
   }).catchError((error) {
@@ -87,6 +86,71 @@ void getSensorReadings() {
       debugPrint("🚨 Unexpected Error: ${error.toString()}");
     }
     emit(AppGetSensorsErrorState(error.toString()));
+  });
+}
+
+
+List<DetectionModel> detections = [];
+
+void getLastFiveDetects() {
+  emit(AppGetDetectionsLoadingState());
+
+  String? token = CacheHelper.getData(key: 'token');
+
+  _dio.get(
+    'customer/homes/lastFiveDetects', // الـ endpoint من الصورة
+    options: Options(
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    ),
+  ).then((value) {
+    debugPrint("✅ DETECTIONS SUCCESS");
+    
+    // تصفير القائمة عشان م تكررش البيانات لو ناديت الفانكشن تاني
+    detections = [];
+    
+    // بما إن اللي راجع List بنمشي عليها بـ loop
+    value.data.forEach((element) {
+      detections.add(DetectionModel.fromJson(element));
+    });
+
+    emit(AppGetDetectionsSuccessState());
+  }).catchError((error) {
+    if (error is DioException) {
+      debugPrint("🚨 Status Code: ${error.response?.statusCode}");
+      debugPrint("🚨 Server Message: ${error.response?.data}");
+    } else {
+      debugPrint("🚨 Unexpected Error: ${error.toString()}");
+    }
+    emit(AppGetDetectionsErrorState(error.toString()));
+  });
+}
+
+List<DetectionModel> allDetections = []; // قائمة جديدة لكل الداتا
+
+void getAllDetectPlants() {
+  emit(AppGetAllDetectionsLoadingState());
+
+  String? token = CacheHelper.getData(key: 'token');
+
+  _dio.get(
+    'customer/homes/allDetectPlants',
+    options: Options(
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    ),
+  ).then((value) {
+    allDetections = [];
+    value.data.forEach((element) {
+      allDetections.add(DetectionModel.fromJson(element));
+    });
+    emit(AppGetAllDetectionsSuccessState());
+  }).catchError((error) {
+    debugPrint("🚨 Error: ${error.toString()}");
+    emit(AppGetAllDetectionsErrorState(error.toString()));
   });
 }
 
