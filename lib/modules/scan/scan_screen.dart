@@ -1,7 +1,12 @@
 import 'dart:io';
+import 'package:agre_lens_app/modules/home/plant%20details/plant_details_screen.dart';
+import 'package:agre_lens_app/modules/scan/cubit/scan_state.dart';
+import 'package:agre_lens_app/shared/cubit/cubit.dart';
+import 'package:agre_lens_app/shared/cubit/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +17,8 @@ class ScanScreen extends StatefulWidget {
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
-class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateMixin {
+class _ScanScreenState extends State<ScanScreen>
+    with SingleTickerProviderStateMixin {
   CameraController? _controller;
   XFile? _capturedImage;
   bool _isFlashOn = false;
@@ -23,7 +29,8 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -33,8 +40,10 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(seconds: 2),
     )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) _animationController.reverse();
-        else if (status == AnimationStatus.dismissed) _animationController.forward();
+        if (status == AnimationStatus.completed)
+          _animationController.reverse();
+        else if (status == AnimationStatus.dismissed)
+          _animationController.forward();
       });
 
     _initializeCamera();
@@ -52,8 +61,18 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _controller?.dispose();
-    _animationController.dispose(); 
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _startRealScan() {
+    if (_capturedImage != null) {
+      setState(() => _isScanning = true);
+      _animationController.forward(); // شغل الانميشن
+
+      // ابعت الصورة للباك إند
+      AppCubit.get(context).scanPlant(File(_capturedImage!.path));
+    }
   }
 
   void _startFakeScan() {
@@ -76,55 +95,104 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: _capturedImage == null
-                  ? (_controller != null && _controller!.value.isInitialized
-                      ? AspectRatio(
-                          aspectRatio: _controller!.value.aspectRatio,
-                          child: CameraPreview(_controller!),
-                        )
-                      : const Center(child: CircularProgressIndicator(color: Colors.white)))
-                  : Image.file(File(_capturedImage!.path), fit: BoxFit.contain),
+    return BlocConsumer<AppCubit, AppStates>(
+     listener: (context, state) {
+        // لو التحليل نجح
+        if (state is ScanPlantSuccessState) {
+          setState(() {
+            _isScanning = false;
+            _animationController.stop();
+            _animationController.reset();
+          });
+          
+          // نروح لصفحة التفاصيل ونبعتلها الموديل اللي رجع من الباك
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlantDetailsScreen(
+                model: state.detectionModel,
+                date: state.detectionModel.receivedDate ?? DateTime.now().toIso8601String(),
+              ),
             ),
-
-            if (_isScanning) _buildScannerAnimation(),
-
-            if (_capturedImage == null)
-              Positioned(
-                top: 20, right: 20,
-                child: FloatingActionButton.small(
-                  heroTag: 'flashBtn',
-                  backgroundColor: Colors.black.withOpacity(0.5),
-                  child: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off, color: _isFlashOn ? Colors.yellow : Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _isFlashOn = !_isFlashOn;
-                      _controller?.setFlashMode(_isFlashOn ? FlashMode.torch : FlashMode.off);
-                    });
-                  },
+          );
+        } 
+        // لو حصل خطأ في التحليل
+        else if (state is ScanPlantErrorState) {
+          setState(() {
+            _isScanning = false;
+            _animationController.stop();
+            _animationController.reset();
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${state.error}'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _capturedImage == null
+                      ? (_controller != null && _controller!.value.isInitialized
+                          ? AspectRatio(
+                              aspectRatio: _controller!.value.aspectRatio,
+                              child: CameraPreview(_controller!),
+                            )
+                          : const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.white)))
+                      : Image.file(File(_capturedImage!.path),
+                          fit: BoxFit.contain),
                 ),
-              ),
-
-            if (_capturedImage == null) _buildBottomButtons(),
-            if (_capturedImage != null && !_isScanning) _buildPreviewActions(),
-            
-            if (_isScanning)
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
-                  child: const Text("Scanning...", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                ),
-              ),
-          ],
-        ),
-      ),
+                if (_isScanning) _buildScannerAnimation(),
+                if (_capturedImage == null)
+                  Positioned(
+                    top: 20,
+                    right: 20,
+                    child: FloatingActionButton.small(
+                      heroTag: 'flashBtn',
+                      backgroundColor: Colors.black.withOpacity(0.5),
+                      child: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off,
+                          color: _isFlashOn ? Colors.yellow : Colors.white),
+                      onPressed: () {
+                        setState(() {
+                          _isFlashOn = !_isFlashOn;
+                          _controller?.setFlashMode(
+                              _isFlashOn ? FlashMode.torch : FlashMode.off);
+                        });
+                      },
+                    ),
+                  ),
+                if (_capturedImage == null) _buildBottomButtons(),
+                if (_capturedImage != null && !_isScanning) _buildPreviewActions(),
+                if (_isScanning)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: const Text("Scanning...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -135,7 +203,9 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
         return Stack(
           children: [
             Positioned(
-              top: _animationController.value * MediaQuery.of(context).size.height * 0.7,
+              top: _animationController.value *
+                  MediaQuery.of(context).size.height *
+                  0.7,
               left: 0,
               right: 0,
               child: Container(
@@ -149,7 +219,11 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
                     )
                   ],
                   gradient: const LinearGradient(
-                    colors: [Colors.transparent, Colors.greenAccent, Colors.transparent],
+                    colors: [
+                      Colors.transparent,
+                      Colors.greenAccent,
+                      Colors.transparent
+                    ],
                   ),
                 ),
               ),
@@ -190,10 +264,14 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
             _buildGradientButton(
               text: 'Upload Photo',
               onTap: () async {
-                final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+                final picked =
+                    await ImagePicker().pickImage(source: ImageSource.gallery);
                 if (picked != null) setState(() => _capturedImage = picked);
               },
-              gradientColors: [const Color(0xFF546E7A), const Color(0xFF263238)],
+              gradientColors: [
+                const Color(0xFF546E7A),
+                const Color(0xFF263238)
+              ],
               shadowColor: Colors.black.withOpacity(0.6),
             ),
           ],
@@ -202,20 +280,33 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildGradientButton({required String text, required VoidCallback onTap, required List<Color> gradientColors, required Color shadowColor}) {
+  Widget _buildGradientButton(
+      {required String text,
+      required VoidCallback onTap,
+      required List<Color> gradientColors,
+      required Color shadowColor}) {
     return Container(
-      height: 60, width: double.infinity,
+      height: 60,
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(colors: gradientColors),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: shadowColor, offset: const Offset(0, 4), blurRadius: 10.0)],
+        boxShadow: [
+          BoxShadow(
+              color: shadowColor, offset: const Offset(0, 4), blurRadius: 10.0)
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          child: Center(child: Text(text, style: GoogleFonts.poppins(fontSize: 19, color: Colors.white, fontWeight: FontWeight.w600))),
+          child: Center(
+              child: Text(text,
+                  style: GoogleFonts.poppins(
+                      fontSize: 19,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600))),
         ),
       ),
     );
@@ -226,7 +317,10 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
       alignment: Alignment.bottomCenter,
       child: Container(
         padding: const EdgeInsets.all(30),
-        decoration: BoxDecoration(color: Colors.black.withOpacity(0.6), borderRadius: const BorderRadius.vertical(top: Radius.circular(30))),
+        decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(30))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -238,7 +332,7 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
             _buildCircularActionButton(
               icon: Icons.check_rounded,
               color: Colors.greenAccent,
-              onTap: _startFakeScan,
+              onTap: _startRealScan,
               isPrimary: true,
             ),
           ],
@@ -247,13 +341,19 @@ class _ScanScreenState extends State<ScanScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildCircularActionButton({required IconData icon, required Color color, required VoidCallback onTap, bool isPrimary = false}) {
+  Widget _buildCircularActionButton(
+      {required IconData icon,
+      required Color color,
+      required VoidCallback onTap,
+      bool isPrimary = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(isPrimary ? 18 : 15),
         decoration: BoxDecoration(
-          color: isPrimary ? color.withOpacity(0.2) : Colors.white.withOpacity(0.1),
+          color: isPrimary
+              ? color.withOpacity(0.2)
+              : Colors.white.withOpacity(0.1),
           shape: BoxShape.circle,
           border: Border.all(color: color, width: 2),
         ),

@@ -6,6 +6,7 @@ import 'package:agre_lens_app/modules/history/report/report_screen.dart';
 import 'package:agre_lens_app/shared/cubit/cubit.dart';
 import 'package:agre_lens_app/shared/cubit/states.dart';
 import 'package:buildcondition/buildcondition.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -266,125 +267,156 @@ Widget healthPlantBuilder() => BuildCondition(
 
 Widget buildDetectionItem({
   required BuildContext context,
-  required DetectionModel model,
-}) =>
-    InkWell(
-      onTap: () => Navigator.push(
+  required DetectionModel model, // الموديل الجديد
+}) {
+  // اللوجيك لاستخراج البيانات
+  bool hasData = model.detections != null && model.detections!.isNotEmpty;
+  String displayLabel =
+      hasData ? model.detections![0].label ?? "Unknown" : "No Detection";
+  double displayConfidence =
+      hasData ? model.detections![0].confidence ?? 0.0 : 0.0;
+
+  return InkWell(
+    onTap: () {
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PlantDetailsScreen(
-            label: model.label,
+            // تمرير كائن الـ model كاملاً للكونستراكتور الجديد
+            model: model,
+            // تمرير التاريخ بشكل منفصل كما هو محدد في الكونستراكتور
             date: model.receivedDate,
-            confidence: model.confidence,
-            imageUrl: model.imageUrl,
           ),
         ),
+      );
+    },
+    child: Container(
+      width: 130, // نفس عرضك الأصلي
+      padding: const EdgeInsets.all(12), // نفس البادينج الأصلي
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: ColorManager.greenColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Container(
-        width: 130,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAFAFA),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: ColorManager.greenColor),
-          // ... باقي الـ decoration
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // مهم جداً عشان يلم المساحة
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  height: 100,
-                  width: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
-                        spreadRadius: 0,
-                        blurRadius: 4,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-                      child: Image.asset(
-                        'assets/images/diecease_plant.webp',
-                        fit: BoxFit.cover,
-                      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // الصورة الاستاتيك بتاعتك بنفس القياسات وتأثير الـ Blur
+              Container(
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      spreadRadius: 0,
+                      blurRadius: 4,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                    child: Image.asset(
+                      'assets/images/diecease_plant.webp', // الصورة الاستاتيك
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                Container(
-                  height: 70,
-                  width: 70,
-                  decoration: BoxDecoration(
+              ),
+              // الدوائر الزجاجية والنسبة
+              Container(
+                height: 70,
+                width: 70,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: getColorOfConfidence(displayConfidence),
+                  ),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
                     border: Border.all(
-                      color: getColorOfConfidence(model.confidence),
+                      color: getColorOfConfidence(displayConfidence),
                     ),
                     shape: BoxShape.circle,
-                  ),
-                ),
-                Container(
-                  height: 60,
-                  width: 60,
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: getColorOfConfidence(model.confidence),
-                      ),
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.55)),
-                ),
-                Text(
-                  '${model.confidence}%',
-                  style: GoogleFonts.reemKufi(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: Colors.black),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${model.label}',
+                    color: Colors.white.withOpacity(0.55)),
+              ),
+              Text(
+                '${displayConfidence.toStringAsFixed(1)}%',
+                style: GoogleFonts.reemKufi(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: Colors.black),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // التعديل البسيط هنا للحماية من الـ Overflow العرضي
+          SizedBox(
+            width: 106, // العرض المتبقي بالظبط بعد البادينج
+            child: Text(
+              displayLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(/* ستايلك */),
+              textAlign: TextAlign.center, // توسيط عشان الشكل
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  color: Colors.black87),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
+}
+
 Widget detectionBuilder() => BlocBuilder<AppCubit, AppStates>(
       builder: (context, state) {
         var cubit = AppCubit.get(context);
 
+        // cubit.detections هنا هي List<DetectionModel> (الهيكل الجديد المجمع)
         return BuildCondition(
-          // الشرط هنا إن الـ List متبقاش فاضية
           condition: cubit.detections.isNotEmpty,
           builder: (context) => ListView.separated(
             clipBehavior: Clip.none,
             shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 10), // أضفت padding رأسي للظل
             itemBuilder: (context, index) => buildDetectionItem(
               context: context,
-              model: cubit.detections[index], // بنبعت العنصر حسب الـ index
+              model:
+                  cubit.detections[index], // بنبعت الـ DetectionModel Container
             ),
-            separatorBuilder: (context, index) => SizedBox(width: 15),
-            itemCount: cubit.detections.length, // عددهم حسب اللي جاي من الباك
+            separatorBuilder: (context, index) => const SizedBox(width: 15),
+            itemCount: cubit.detections.length,
           ),
           fallback: (context) => Center(
             child: cubit.detections.isEmpty &&
                     state is AppGetDetectionsLoadingState
                 ? CircularProgressIndicator(color: ColorManager.greenColor)
-                : Text("No detections found"),
+                : const Text("No scans found"),
           ),
         );
       },
@@ -722,7 +754,7 @@ Widget sensorReading1({
 
 Widget sensorReading2({
   required String? sensorName,
-  required double? sensorStats,
+  required int? sensorStats,
 }) =>
     Container(
       height: 72,
@@ -838,7 +870,7 @@ Color getColorOfConfidence(double? stats) {
   }
 }
 
-Color getColorOfTempStats(double stats) {
+Color getColorOfTempStats(int stats) {
   if (stats <= 30 && stats >= 15) {
     return ColorManager.greenColor;
   } else if (stats <= 35 && stats >= 10) {

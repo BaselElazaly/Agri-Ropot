@@ -1,12 +1,11 @@
 class SensorDataModel {
   final int minTemperature;
-  final double avgTemperature;
+  final int avgTemperature;
   final int maxTemperature;
 
   final int minSoil;
-  final double avgSoil;
+  final int avgSoil;
   final int maxSoil;
-
 
   SensorDataModel({
     required this.minTemperature,
@@ -15,18 +14,16 @@ class SensorDataModel {
     required this.minSoil,
     required this.avgSoil,
     required this.maxSoil,
-
   });
 
   factory SensorDataModel.fromJson(Map<String, dynamic> json) {
     return SensorDataModel(
-      minTemperature: json['minTemperature'],
-      avgTemperature: json['avgTemperature'] * 1.0,
-      maxTemperature: json['maxTemperature'],
-      minSoil: json['minSoil'],
-      avgSoil: json['avgSoil'] * 1.0,
-      maxSoil: json['maxSoil'],
-
+      minTemperature: (json['minTemperature'] as num?)?.toInt() ?? 0,
+      avgTemperature: (json['avgTemperature'] as num?)?.toInt() ?? 0,
+      maxTemperature: (json['maxTemperature'] as num?)?.toInt() ?? 0,
+      minSoil: (json['minSoil'] as num?)?.toInt() ?? 0,
+      avgSoil: (json['avgSoil'] as num?)?.toInt() ?? 0,
+      maxSoil: (json['maxSoil'] as num?)?.toInt() ?? 0,
     );
   }
 }

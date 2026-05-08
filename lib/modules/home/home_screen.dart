@@ -13,8 +13,24 @@ import '../../shared/cubit/cubit.dart';
 import '../../shared/cubit/states.dart';
 import 'all plants/all_plant_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    // نستخدم listen: false لأننا داخل initState ومش محتاجين نعيد بناء الويدجت هنا
+    AppCubit.get(context).getLastFiveDetects();
+    
+    // لو محتاج تجيب بيانات الحساسات والبروفايل برضه ناديهم هنا لو مش بيتنادوا مكان تاني
+    AppCubit.get(context).getSensorReadings();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(height: 160, child: detectionBuilder()),
+                SizedBox(height: 180, child: detectionBuilder()),
                 const SizedBox(height: 10),
                 Text('Sensors Reading', style: GoogleFonts.reemKufi(fontSize: 18, fontWeight: FontWeight.w600, color: const Color(0xFF414042))),
                 const SizedBox(height: 10),

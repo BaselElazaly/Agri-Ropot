@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:agre_lens_app/models/last_five_detetct_model.dart';
 import 'package:agre_lens_app/modules/history/history_screen.dart';
 import 'package:agre_lens_app/modules/home/home_screen.dart';
+import 'package:agre_lens_app/modules/scan/cubit/scan_state.dart';
 import 'package:agre_lens_app/modules/scan/scan_screen.dart';
 import 'package:agre_lens_app/modules/settings/settings_screen.dart';
 import 'package:agre_lens_app/modules/control/control_screen.dart';
@@ -53,7 +54,7 @@ final Dio _dio = Dio(BaseOptions(
   ));
 int smokeLevel = 0;
 int soilMoisture = 0;
-double temperature = 0;
+int temperature = 0;
 
 void getSensorReadings() {
   emit(AppGetSensorsLoadingState());
@@ -71,9 +72,9 @@ void getSensorReadings() {
   ).then((value) {
     debugPrint("✅ SUCCESS DATA: ${value.data}");
     
-    smokeLevel = value.data['smokeLevel'] ?? 0;
-    soilMoisture = value.data['soilMoisture'] ?? 0;
-    temperature = value.data['temperature'] ?? 0.0;
+    smokeLevel = (value.data['avgSmokeLevel'] as num?)?.toInt() ?? 0;
+    soilMoisture = (value.data['avgMoisture'] as num?)?.toInt() ?? 0;
+    temperature = (value.data['avgAirTemperature'] as num?)?.toInt() ?? 0;
     
     emit(AppGetSensorsSuccessState());
   }).catchError((error) {
@@ -98,7 +99,7 @@ void getLastFiveDetects() {
   String? token = CacheHelper.getData(key: 'token');
 
   _dio.get(
-    'customer/homes/lastFiveDetects', // الـ endpoint من الصورة
+    'Customer/Homes/LastFiveDetects', // الـ endpoint من الصورة
     options: Options(
       headers: {
         'Authorization': 'Bearer $token',
@@ -134,9 +135,8 @@ void getAllDetectPlants() {
   emit(AppGetAllDetectionsLoadingState());
 
   String? token = CacheHelper.getData(key: 'token');
-
   _dio.get(
-    'customer/homes/allDetectPlants',
+    'customer/Homes/AllDetectPlants',
     options: Options(
       headers: {
         'Authorization': 'Bearer $token',
@@ -579,6 +579,63 @@ Future<void> forgetPassword({required String email}) async {
   }
 }
 
+void scanPlant(File imageFile) async {
+  emit(ScanPlantLoadingState());
 
+  String? token = CacheHelper.getData(key: 'token');
+
+  try {
+    // تجهيز الملف للرفع باستخدام FormData
+    String fileName = imageFile.path.split('/').last;
+    
+    // برينت عشان نتأكد إن الملف اتقرا صح
+    debugPrint("🚀 Start Scanning Process...");
+    debugPrint("📁 File Path: ${imageFile.path}");
+    debugPrint("📄 File Name: $fileName");
+
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(imageFile.path, filename: fileName),
+    });
+
+    debugPrint("🌐 Sending request to API...");
+
+    _dio.post(
+      'https://finalgraduationproject.runasp.net/api/customer/scans/analysis', // الـ URL كامل
+      data: formData,
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      ),
+    ).then((value) {
+      debugPrint("✅ SCAN SUCCESS!");
+      debugPrint("📦 Response Data: ${value.data}");
+      
+      // استقبال النتيجة وتحويلها للموديل بتاعنا
+      DetectionModel model = DetectionModel.fromJson(value.data);
+      
+      emit(ScanPlantSuccessState(model));
+    }).catchError((error) {
+      debugPrint("❌ OOPS! Something went wrong in the API call");
+      
+      if (error is DioException) {
+        // تفاصيل الخطأ كاملة لو المشكلة من Dio
+        debugPrint("🚨 Full URL: ${error.requestOptions.uri}");
+        debugPrint("🚨 Error Message: ${error.message}");
+        debugPrint("🚨 Status Code: ${error.response?.statusCode}");
+        debugPrint("🚨 Server Response: ${error.response?.data}");
+        
+        // أحياناً الخطأ بيكون في الـ Headers أو شكل الـ FormData
+        debugPrint("🚨 Request Headers: ${error.requestOptions.headers}");
+      } else {
+        debugPrint("🚨 Unexpected Error: ${error.toString()}");
+      }
+      emit(ScanPlantErrorState(error.toString()));
+    });
+  } catch (e) {
+    debugPrint("🚨 Try-Catch Error: $e");
+    emit(ScanPlantErrorState(e.toString()));
+  }
+}
 
 }
