@@ -160,9 +160,8 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         ],
       ),
       // زر الشات العائم (كما في الصورة الجديدة)
-     // لاحظ هنا إحنا استخدمنا GestureDetector بدل FloatingActionButton
-      floatingActionButton: GestureDetector(
-        onTap: () {
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
           // جلب الـ index الحالي للـ PageView لمعرفة النبات المعروض حالياً
           int currentIndex = _pageController.hasClients ? (_pageController.page?.round() ?? 0) : 0;
           
@@ -183,28 +182,17 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
             );
           }
         },
-        child: Container(
-          width: 80,
-          height: 80,
-          // هنا السحر عشان نعمل Elevation بسيط من غير ما نبوظ الصورة الشفافة
-          decoration: BoxDecoration(
-            shape: BoxShape.circle, // عشان الشادو يتبع شكل الأيقونة الدائري
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06), // لون ظل أسود خفيف جداً
-                blurRadius: 20, // مدى نعومة الظل (كل ما زاد بقى أنعم)
-                spreadRadius: 0, // مدى انتشار الظل
-                offset: const Offset(0, 5), // إزاحة الظل لتحت شوية (بيعمل إحساس البروز)
-              ),
-            ],
-          ),
-          child: Image.asset(
-            'assets/images/Ai_Confidence.png',
-            height: 80,
-            width: 80,
-            fit: BoxFit.contain, // أفضل استخدام Contain عشان نحافظ على الأبعاد
-          ),
+        backgroundColor: Colors.white,
+        shape: const CircleBorder(),
+        elevation: 4,
+
+        child: ClipOval(
+        child: Image.asset(
+          'assets/images/AiChat.jpeg',
+          width: 40, 
+          fit: BoxFit.cover, 
         ),
+      ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -378,9 +366,10 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
             children: [
               // أيقونة AI
               Image.asset(
-                'assets/images/Ai_Confidence.png',
-                width: 56,
+                'assets/images/AiConfidence.png',
+                width: 30,
               ),
+              const SizedBox(width: 5,),
               const Text(
                 'AI Confidence',
                 style: TextStyle(

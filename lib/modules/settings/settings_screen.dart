@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../shared/cubit/cubit.dart';
 import '../../shared/cubit/states.dart';
@@ -20,12 +21,13 @@ import '../../shared/cubit/states.dart';
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
 
-
   Future<void> signOutUser() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     final FirebaseAuth auth = FirebaseAuth.instance;
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
     try {
+      await prefs.remove('token');
       await auth.signOut();
       await googleSignIn.signOut();
       print('تم تسجيل الخروج بنجاح');
@@ -33,7 +35,6 @@ class SettingsScreen extends StatelessWidget {
       print('حدث خطأ أثناء تسجيل الخروج: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -47,22 +48,22 @@ class SettingsScreen extends StatelessWidget {
             backgroundColor: Colors.grey.shade100,
             elevation: 0,
             centerTitle: true,
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: InkWell(
-                  onTap: (){
-                    cubit.changeNavBarIndex(0);
-                  },
-                  child: Transform.scale(
-                    scale: 0.8,
-                    child: SvgPicture.asset(
-                      'assets/icons/ep_back.svg',
-                      width: 32,
-                      height: 32,
-                    ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: InkWell(
+                onTap: () {
+                  cubit.changeNavBarIndex(0);
+                },
+                child: Transform.scale(
+                  scale: 0.8,
+                  child: SvgPicture.asset(
+                    'assets/icons/ep_back.svg',
+                    width: 32,
+                    height: 32,
                   ),
                 ),
               ),
+            ),
             title: Text(
               'Settings',
               style: GoogleFonts.poppins(
@@ -88,7 +89,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () async{
+                  onPressed: () async {
                     await signOutUser();
                     Navigator.pushReplacement(
                       context,
@@ -99,8 +100,8 @@ class SettingsScreen extends StatelessWidget {
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.white,
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -122,7 +123,6 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
-
 
 class SettingsCard extends StatelessWidget {
   final List<SettingsItem> items;
@@ -156,7 +156,7 @@ class SettingsCard extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>  item.screen,
+                              builder: (context) => item.screen,
                             ),
                           );
                         },

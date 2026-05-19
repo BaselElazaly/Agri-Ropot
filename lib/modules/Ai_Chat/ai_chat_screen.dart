@@ -8,7 +8,7 @@ import 'package:flutter_svg/svg.dart';
 // تأكد من استدعاء الـ Cubit والـ States الخاصة بك هنا
 // import 'chat_cubit.dart';
 // import 'chat_states.dart';
-// import 'package:agre_lens_app/shared/styles/colors.dart'; 
+// import 'package:agre_lens_app/shared/styles/colors.dart';
 
 class AiChatScreen extends StatelessWidget {
   final String plantLabel;
@@ -69,7 +69,7 @@ class _AiChatViewState extends State<_AiChatView> {
     super.dispose();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6FAF6),
@@ -114,7 +114,8 @@ class _AiChatViewState extends State<_AiChatView> {
       ),
       body: BlocConsumer<ChatCubit, ChatStates>(
         listener: (context, state) {
-          if (state is ChatMessageSendingState || state is ChatMessageSuccessState) {
+          if (state is ChatMessageSendingState ||
+              state is ChatMessageSuccessState) {
             _scrollToBottom();
           }
         },
@@ -129,9 +130,11 @@ class _AiChatViewState extends State<_AiChatView> {
                   controller: _scrollController,
                   padding: const EdgeInsets.all(20),
                   physics: const BouncingScrollPhysics(),
-                  itemCount: cubit.messages.length + (state is ChatMessageSendingState ? 1 : 0),
+                  itemCount: cubit.messages.length +
+                      (state is ChatMessageSendingState ? 1 : 0),
                   itemBuilder: (context, index) {
-                    if (index == cubit.messages.length && state is ChatMessageSendingState) {
+                    if (index == cubit.messages.length &&
+                        state is ChatMessageSendingState) {
                       return _buildTypingIndicator();
                     }
                     final message = cubit.messages[index];
@@ -156,12 +159,20 @@ class _AiChatViewState extends State<_AiChatView> {
   }
 
   // ويدجت جديدة مخصصة للاقتراحات عشان تفضل ثابتة
- // ويدجت الاقتراحات الثابتة (شكل شبكة 2x2 زي الصورة)
+  // ويدجت الاقتراحات الثابتة (شكل شبكة 2x2 زي الصورة)
   Widget _buildSuggestionsArea(ChatCubit cubit) {
     return Container(
       width: double.infinity, // عشان ياخد العرض كله والـ Wrap يسنترهم
-      color: const Color(0xFFF6FAF6), // نفس لون الخلفية
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        border: const Border(
+          top: BorderSide(
+            color: Colors.grey,
+            width: 0.3,
+          ),
+        ),
+        color: const Color(0xFFF6FAF6), // نفس لون الخلفية
+      ),
       child: Wrap(
         alignment: WrapAlignment.center, // توسيط الاقتراحات في الشاشة
         spacing: 12, // المسافة الأفقية بين كل زرار والتاني
@@ -178,7 +189,7 @@ class _AiChatViewState extends State<_AiChatView> {
                 color: const Color(0xFFE8F3EA),
                 borderRadius: BorderRadius.circular(20),
                 // إطار خفيف جداً لو حابب تبرزه أكتر
-                border: Border.all(color: Colors.transparent, width: 0), 
+                border: Border.all(color: Colors.grey, width: 0.5),
               ),
               child: Text(
                 suggestion,
@@ -195,6 +206,7 @@ class _AiChatViewState extends State<_AiChatView> {
       ),
     );
   }
+
   // ويدجت إدخال النص بعد تعديل الألوان
   Widget _buildInputArea(BuildContext context, ChatCubit cubit) {
     return Container(
@@ -218,13 +230,15 @@ class _AiChatViewState extends State<_AiChatView> {
                   textSelectionTheme: const TextSelectionThemeData(
                     cursorColor: Color(0xFF3B7254), // لون مؤشر الكتابة
                     selectionColor: Color(0xFFCDE2D2), // لون تظليل النص
-                    selectionHandleColor: Color(0xFF3B7254), // لون النقطتين بتوع النسخ
+                    selectionHandleColor:
+                        Color(0xFF3B7254), // لون النقطتين بتوع النسخ
                   ),
                 ),
                 child: TextField(
                   controller: _msgController,
                   cursorColor: const Color(0xFF3B7254), // تأكيد على لون المؤشر
-                  style: const TextStyle(color: Colors.black87), // لون النص المكتوب
+                  style: const TextStyle(
+                      color: Colors.black87), // لون النص المكتوب
                   decoration: const InputDecoration(
                     hintText: "Ask about your plant...",
                     hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
@@ -254,21 +268,24 @@ class _AiChatViewState extends State<_AiChatView> {
                 color: Color(0xFF3B7254),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+              child:
+                  const Icon(Icons.send_rounded, color: Colors.white, size: 22),
             ),
           ),
         ],
       ),
     );
   }
+
   // ويدجت فقاعة الرسالة (Chat Bubble)
   Widget _buildMessageBubble(ChatMessage message) {
     bool isMe = message.isUser;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
@@ -287,12 +304,18 @@ class _AiChatViewState extends State<_AiChatView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               decoration: BoxDecoration(
-                color: isMe ? const Color(0xFF3B7254) : Colors.white, // ألوان مطابقة للصورة
+                color: isMe
+                    ? const Color(0xFF3B7254)
+                    : Colors.white, // ألوان مطابقة للصورة
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
-                  bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(5),
-                  bottomRight: isMe ? const Radius.circular(5) : const Radius.circular(20),
+                  bottomLeft: isMe
+                      ? const Radius.circular(20)
+                      : const Radius.circular(5),
+                  bottomRight: isMe
+                      ? const Radius.circular(5)
+                      : const Radius.circular(20),
                 ),
                 boxShadow: isMe
                     ? []
@@ -317,13 +340,13 @@ class _AiChatViewState extends State<_AiChatView> {
             ),
           ),
           if (isMe) ...[
-             // صورة مصغرة لليوزر لو حابب تضيفها (اختياري)
-             const SizedBox(width: 8),
-             const CircleAvatar(
-               radius: 14,
-               backgroundColor: Color(0xFF3B7254),
-               child: Icon(Icons.person, color: Colors.white, size: 18),
-             )
+            // صورة مصغرة لليوزر لو حابب تضيفها (اختياري)
+            const SizedBox(width: 8),
+            const CircleAvatar(
+              radius: 14,
+              backgroundColor: Color(0xFF3B7254),
+              child: Icon(Icons.person, color: Colors.white, size: 18),
+            )
           ]
         ],
       ),
@@ -375,11 +398,13 @@ class _AiChatViewState extends State<_AiChatView> {
     );
   }
 
- Widget _dotAnimation(int delay) {
-    return Flash( // استبدلنا FadeIn بـ Flash
+  Widget _dotAnimation(int delay) {
+    return Flash(
+      // استبدلنا FadeIn بـ Flash
       delay: Duration(milliseconds: delay),
       infinite: true, // دلوقتي هتشتغل بدون أي مشاكل
-      duration: const Duration(milliseconds: 1000), // تقدر تتحكم في سرعة النبضة من هنا
+      duration: const Duration(
+          milliseconds: 1000), // تقدر تتحكم في سرعة النبضة من هنا
       child: Container(
         width: 6,
         height: 6,
