@@ -1,4 +1,5 @@
 import 'package:agre_lens_app/models/last_five_detetct_model.dart';
+import 'package:agre_lens_app/modules/Ai_Chat/ai_chat_screen.dart';
 import 'package:agre_lens_app/shared/cubit/cubit.dart';
 import 'package:agre_lens_app/shared/cubit/states.dart';
 import 'package:agre_lens_app/shared/styles/colors.dart';
@@ -131,7 +132,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                   )
                 : Center(
                     child: Text(
-                        "No diseases detected or healthy.")), // حالة عدم وجود بيانات
+                        "No objects detected")), // حالة عدم وجود بيانات
           ),
 
           // 3. مؤشر الصفحات (Dots Indicator) - ثابت في الأسفل
@@ -159,12 +160,51 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         ],
       ),
       // زر الشات العائم (كما في الصورة الجديدة)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.white,
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: Icon(Icons.chat, color: ColorManager.greenColor, size: 24,) // استبدلها بأيقونتك
+     // لاحظ هنا إحنا استخدمنا GestureDetector بدل FloatingActionButton
+      floatingActionButton: GestureDetector(
+        onTap: () {
+          // جلب الـ index الحالي للـ PageView لمعرفة النبات المعروض حالياً
+          int currentIndex = _pageController.hasClients ? (_pageController.page?.round() ?? 0) : 0;
+          
+          // التأكد من وجود بيانات قبل إرسالها
+          if (widget.model.detections != null && widget.model.detections!.isNotEmpty) {
+            final currentDetection = widget.model.detections![currentIndex];
+            String label = currentDetection.label ?? "Unknown Plant";
+            double confidence = currentDetection.confidence ?? 0.0;
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AiChatScreen(
+                  plantLabel: label,
+                  confidence: confidence,
+                ),
+              ),
+            );
+          }
+        },
+        child: Container(
+          width: 80,
+          height: 80,
+          // هنا السحر عشان نعمل Elevation بسيط من غير ما نبوظ الصورة الشفافة
+          decoration: BoxDecoration(
+            shape: BoxShape.circle, // عشان الشادو يتبع شكل الأيقونة الدائري
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06), // لون ظل أسود خفيف جداً
+                blurRadius: 20, // مدى نعومة الظل (كل ما زاد بقى أنعم)
+                spreadRadius: 0, // مدى انتشار الظل
+                offset: const Offset(0, 5), // إزاحة الظل لتحت شوية (بيعمل إحساس البروز)
+              ),
+            ],
+          ),
+          child: Image.asset(
+            'assets/images/Ai_Confidence.png',
+            height: 80,
+            width: 80,
+            fit: BoxFit.contain, // أفضل استخدام Contain عشان نحافظ على الأبعاد
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
