@@ -17,11 +17,10 @@ class ChatCubit extends Cubit<ChatStates> {
 
   List<ChatMessage> messages = [];
 
-  // متغير عشان نحفظ فيه اسم النبات ونستخدمه مع كل رسالة
   String currentPlantName = "";
 
   void initChat(String plantLabel, double confidence) {
-    currentPlantName = plantLabel; // حفظ اسم النبات
+    currentPlantName = plantLabel;
 
     bool isHealthy = plantLabel.toLowerCase().contains('healthy');
     String conditionText = isHealthy ? "looks healthy" : "was detected";
@@ -36,18 +35,15 @@ class ChatCubit extends Cubit<ChatStates> {
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    // 1. إضافة رسالة المستخدم للـ UI بشكلها الطبيعي (بدون السياق الخفي)
     messages.add(ChatMessage(text: text, isUser: true));
     emit(ChatMessageSendingState());
     String? token = CacheHelper.getData(key: 'token');
     try {
-      // 2. تجهيز الـ Messages للـ API مع حقن "السياق الخفي" في آخر رسالة
       List<Map<String, dynamic>> apiMessages = [];
 
       for (int i = 0; i < messages.length; i++) {
         var m = messages[i];
 
-        // لو دي آخر رسالة اليوزر لسه باعتها حالا، هنضيف قبلها السياق
         if (i == messages.length - 1 && m.isUser) {
           apiMessages.add({
             "role": "user",
@@ -56,7 +52,6 @@ class ChatCubit extends Cubit<ChatStates> {
           });
           print(apiMessages);
         } else {
-          // باقي الرسايل القديمة تتبعت زي ما هي
           apiMessages.add(
               {"role": m.isUser ? "user" : "assistant", "content": m.text});
         }
@@ -72,7 +67,6 @@ class ChatCubit extends Cubit<ChatStates> {
         data: {"messages": apiMessages},
       );
 
-      // 3. استلام الرد وإضافته
       if (response.statusCode == 200) {
         String aiReply = response.data['message'] ?? "No response from AI.";
         messages.add(ChatMessage(text: aiReply, isUser: false));

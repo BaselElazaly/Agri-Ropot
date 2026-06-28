@@ -7,7 +7,6 @@ import 'package:agre_lens_app/modules/settings/notifications_screen.dart';
 import 'package:agre_lens_app/modules/settings/privacy_policy_screen.dart';
 import 'package:agre_lens_app/modules/settings/termes_of_use_screen.dart';
 import 'package:agre_lens_app/modules/login/login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,12 +22,10 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> signOutUser() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
-    final FirebaseAuth auth = FirebaseAuth.instance;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     try {
       await prefs.remove('token');
-      await auth.signOut();
       await googleSignIn.signOut();
       print('تم تسجيل الخروج بنجاح');
     } catch (e) {
@@ -43,16 +40,16 @@ class SettingsScreen extends StatelessWidget {
       builder: (context, state) {
         var cubit = AppCubit.get(context);
         return Scaffold(
-          backgroundColor: Colors.grey.shade100,
+          backgroundColor: const Color(0xFFFAFAFA),
           appBar: AppBar(
-            backgroundColor: Colors.grey.shade100,
+            backgroundColor: const Color(0xFFFAFAFA),
             elevation: 0,
             centerTitle: true,
             leading: Padding(
               padding: const EdgeInsets.only(left: 10),
               child: InkWell(
                 onTap: () {
-                  cubit.changeNavBarIndex(0);
+                  Navigator.pop(context);
                 },
                 child: Transform.scale(
                   scale: 0.8,
@@ -94,7 +91,7 @@ class SettingsScreen extends StatelessWidget {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(), //login screen
+                        builder: (context) => const LoginPage(),
                       ),
                     );
                   },
@@ -192,7 +189,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
         title: Text(
           'Profile',
@@ -202,7 +199,7 @@ class ProfileScreen extends StatelessWidget {
             color: Colors.black,
           ),
         ),
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: const Color(0xFFFAFAFA),
         elevation: 0,
         leading: const BackButton(color: Colors.black),
       ),

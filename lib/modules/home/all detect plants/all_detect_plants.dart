@@ -4,14 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../../shared/cubit/cubit.dart';
 import '../../../shared/cubit/states.dart';
-import '../../../shared/components/components.dart'; // مكان الـ Item اللي عملناه
+import '../../../shared/components/components.dart';
 
 class AllDetectPlantScreen extends StatelessWidget {
   const AllDetectPlantScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // نداء الـ API أول ما الصفحة تفتح
     AppCubit.get(context).getAllDetectPlants();
 
     return BlocConsumer<AppCubit, AppStates>(
@@ -45,18 +44,15 @@ class AllDetectPlantScreen extends StatelessWidget {
             ),
           ),
           body: BuildCondition(
-            // بنستخدم الـ list الكبيرة اللي عملناها في الكيوبيت
             condition: cubit.allDetections.isNotEmpty,
             builder: (context) => GridView.builder(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(20),
-              // هنا السحر: عرض عنصرين جنب بعض
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 20, // المسافة الأفقية
-                mainAxisSpacing: 20, // المسافة الرأسية
-                childAspectRatio:
-                    0.95, // جرب تغير الرقم ده (0.7 لـ 0.8) لحد ما يظبط الطول مع الـ Item بتاعك
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 0.95,
               ),
               itemBuilder: (context, index) => buildDetectionItem(
                 context: context,

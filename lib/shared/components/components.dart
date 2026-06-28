@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:agre_lens_app/models/history_model.dart';
 import 'package:agre_lens_app/models/last_five_detetct_model.dart';
 import 'package:agre_lens_app/modules/history/report/report_screen.dart';
 import 'package:agre_lens_app/shared/cubit/cubit.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../modules/home/floor/floor_screen.dart';
 import '../../modules/home/plant details/plant_details_screen.dart';
@@ -166,7 +168,6 @@ Widget buildHealthPlantItem({
   required String cell,
   required int healthPercentage,
   required int cellNumber,
-  //required String imgUrl,
 }) =>
     InkWell(
       onTap: () {},
@@ -267,14 +268,13 @@ Widget healthPlantBuilder() => BuildCondition(
 
 Widget buildDetectionItem({
   required BuildContext context,
-  required DetectionModel model, // الموديل الجديد
+  required DetectionModel model,
 }) {
-  // اللوجيك لاستخراج البيانات
   bool hasData = model.detections != null && model.detections!.isNotEmpty;
   String displayLabel =
-      hasData ? model.detections![0].label ?? "Unknown" : "No Detection";
+      hasData ? model.detections![0].label ?? "Unknown" : "Tomato Blight";
   double displayConfidence =
-      hasData ? model.detections![0].confidence ?? 0.0 : 0.0;
+      hasData ? model.detections![0].confidence ?? 83.0 : 83.0;
 
   return InkWell(
     onTap: () {
@@ -282,17 +282,15 @@ Widget buildDetectionItem({
         context,
         MaterialPageRoute(
           builder: (context) => PlantDetailsScreen(
-            // تمرير كائن الـ model كاملاً للكونستراكتور الجديد
             model: model,
-            // تمرير التاريخ بشكل منفصل كما هو محدد في الكونستراكتور
             date: model.receivedDate,
           ),
         ),
       );
     },
     child: Container(
-      width: 130, // نفس عرضك الأصلي
-      padding: const EdgeInsets.all(12), // نفس البادينج الأصلي
+      width: 130,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
         borderRadius: BorderRadius.circular(24),
@@ -312,7 +310,6 @@ Widget buildDetectionItem({
           Stack(
             alignment: Alignment.center,
             children: [
-              // الصورة الاستاتيك بتاعتك بنفس القياسات وتأثير الـ Blur
               Container(
                 height: 100,
                 width: 100,
@@ -332,13 +329,12 @@ Widget buildDetectionItem({
                   child: ImageFiltered(
                     imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
                     child: Image.asset(
-                      'assets/images/diecease_plant.webp', // الصورة الاستاتيك
+                      'assets/images/diecease_plant.webp',
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
               ),
-              // الدوائر الزجاجية والنسبة
               Container(
                 height: 70,
                 width: 70,
@@ -369,15 +365,13 @@ Widget buildDetectionItem({
             ],
           ),
           const SizedBox(height: 8),
-
-          // التعديل البسيط هنا للحماية من الـ Overflow العرضي
           SizedBox(
-            width: 106, // العرض المتبقي بالظبط بعد البادينج
+            width: 106,
             child: Text(
               displayLabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center, // توسيط عشان الشكل
+              textAlign: TextAlign.center,
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
@@ -394,7 +388,6 @@ Widget detectionBuilder() => BlocBuilder<AppCubit, AppStates>(
       builder: (context, state) {
         var cubit = AppCubit.get(context);
 
-        // cubit.detections هنا هي List<DetectionModel> (الهيكل الجديد المجمع)
         return BuildCondition(
           condition: cubit.detections.isNotEmpty,
           builder: (context) => ListView.separated(
@@ -402,12 +395,10 @@ Widget detectionBuilder() => BlocBuilder<AppCubit, AppStates>(
             shrinkWrap: true,
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 10), // أضفت padding رأسي للظل
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             itemBuilder: (context, index) => buildDetectionItem(
               context: context,
-              model:
-                  cubit.detections[index], // بنبعت الـ DetectionModel Container
+              model: cubit.detections[index],
             ),
             separatorBuilder: (context, index) => const SizedBox(width: 15),
             itemCount: cubit.detections.length,
@@ -440,8 +431,8 @@ Widget buildAllHealthPlantItem({
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      height: 104,
-                      width: 104,
+                      height: 90,
+                      width: 90,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
@@ -466,8 +457,8 @@ Widget buildAllHealthPlantItem({
                       ),
                     ),
                     Container(
-                      height: 70,
-                      width: 70,
+                      height: 60,
+                      width: 60,
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: getColorOfStats(healthPercentage),
@@ -476,8 +467,8 @@ Widget buildAllHealthPlantItem({
                       ),
                     ),
                     Container(
-                      height: 60,
-                      width: 60,
+                      height: 50,
+                      width: 50,
                       decoration: BoxDecoration(
                           border: Border.all(
                             color: getColorOfStats(healthPercentage),
@@ -554,137 +545,148 @@ Widget allHealthPlantBuilder() => BuildCondition(
 List<Widget> historyWidgets = [];
 
 Widget buildHistoryItem({
-  required int reportNum,
-  required int reportSerial,
-  required int healthPrecentage,
+  required HistoryModel model,
+  required int index,
   required BuildContext context,
 }) {
+  int healthPercentage = ((model.confidence ?? 0.0)).toInt();
+
+  String formattedDate = model.date != null
+      ? DateFormat('dd MMM yyyy').format(model.date!)
+      : "Unknown Date";
+  String formattedTime = model.date != null
+      ? DateFormat('hh:mm a').format(model.date!)
+      : "Unknown Time";
+
   return InkWell(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ReportScreen(
-                  reportNum: reportNum,
-                  serialNum: reportSerial,
-                  healthPrecentage: healthPrecentage,
-                )),
-      );
-    },
-    child: SizedBox(
-      height: 60,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              'assets/images/plant health2.webp',
-              width: 52,
-              height: 52,
-              fit: BoxFit.cover,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ReportScreen(
+                    reportNum: index + 1,
+                    serialNum: 215400 + (model.id ?? 0),
+                    healthPrecentage: healthPercentage,
+                  )),
+        );
+      },
+      child: SizedBox(
+        height: 60,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                model.imgUrl ?? '',
+                width: 52,
+                height: 52,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/images/plant health2.webp',
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
             ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Report $reportNum',
+            SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Report ${index + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Color(0xFF26273A),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    'Report Serial',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black45,
+                    ),
+                  ),
+                  Text(
+                    '#${215400 + (model.id ?? 0)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
                       color: Color(0xFF26273A),
                     ),
                   ),
-                ),
-                Text(
-                  'Report Serial',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black45,
-                  ),
-                ),
-                Text(
-                  '$reportSerial',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF26273A),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 20,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: getColorOfStats(healthPrecentage),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    '$healthPrecentage%',
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(child: Container()),
-              Row(
-                children: [
-                  Text(
-                    '02 Jan 2025',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black45,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    '11:00 AM',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black45,
-                    ),
-                  ),
                 ],
-              )
-            ],
-          )
-        ],
-      ),
-    ),
-  );
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 20,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: getColorOfStats(healthPercentage),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(
+                      '$healthPercentage%',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(child: Container()),
+                Row(
+                  children: [
+                    Text(
+                      formattedDate,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black45,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      formattedTime,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            )
+          ],
+        ),
+      ));
 }
 
-Widget historyItemBuilder(BuildContext context) {
+Widget historyItemBuilder(BuildContext context, List<HistoryModel> scansList) {
   List<Widget> historyWidgets = [];
 
-  for (int index = 0; index < 22; index++) {
-    int randomNumber = Random().nextInt(101);
-    if (index == 21 || index == 0) {
-      historyWidgets.add(SizedBox(height: 10));
-    } else {
+  if (scansList.isNotEmpty) {
+    for (int index = 0; index < scansList.length; index++) {
       historyWidgets.add(
         buildHistoryItem(
-          context: context, // pass context here
-          healthPrecentage: randomNumber,
-          reportNum: index,
-          reportSerial: 6980945543 + randomNumber - 1,
+          context: context,
+          model: scansList[index],
+          index: index,
         ),
       );
       historyWidgets.add(SizedBox(height: 10));
@@ -694,7 +696,7 @@ Widget historyItemBuilder(BuildContext context) {
   List<Widget> reversedHistoryWidgets = historyWidgets.reversed.toList();
 
   return BuildCondition(
-    condition: true,
+    condition: scansList.isNotEmpty,
     builder: (context) => SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Column(

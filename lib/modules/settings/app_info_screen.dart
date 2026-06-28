@@ -11,9 +11,9 @@ class AppInfoScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => AppInfoCubit(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFAFAFA),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFAFAFA),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),

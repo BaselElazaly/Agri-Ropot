@@ -13,7 +13,7 @@ final List<SettingsItem> settingsItems = [
 ];
 
 final List<SettingsItem> otherSettingsItems = [
-  SettingsItem(title: 'App Info', screen: AppInfoScreen()), //علشان الرن
+  SettingsItem(title: 'App Info', screen: AppInfoScreen()),
   SettingsItem(title: 'Rate Our App', screen: ProfileScreen()),
   SettingsItem(title: 'Help Center', screen: ProfileScreen()),
   SettingsItem(title: 'Contact Us', screen: ProfileScreen()),

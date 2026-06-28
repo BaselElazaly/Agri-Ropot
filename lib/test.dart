@@ -18,7 +18,6 @@ class PreviousRecordBody extends StatelessWidget {
     );
   }
 
-  // عنوان القسم
   Widget _buildHeader() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -38,14 +37,16 @@ class PreviousRecordBody extends StatelessWidget {
           SizedBox(width: 10),
           Text(
             "Latest Analysis Report",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C3E50)),
           ),
         ],
       ),
     );
   }
 
-  // الكارت الرئيسي
   Widget _buildMainRecordCard() {
     return Container(
       decoration: BoxDecoration(
@@ -69,14 +70,14 @@ class PreviousRecordBody extends StatelessWidget {
     );
   }
 
-  // قسم المرض - Disease Section
   Widget _buildDiseaseSection() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel("Disease Detection", Icons.biotech_rounded, Colors.redAccent),
+          _sectionLabel(
+              "Disease Detection", Icons.biotech_rounded, Colors.redAccent),
           const SizedBox(height: 15),
           Row(
             children: [
@@ -86,7 +87,7 @@ class PreviousRecordBody extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 15),
-          _buildConfidenceBar(0.85), // نسبة الثقة 85% كمثال
+          _buildConfidenceBar(0.85),
           const SizedBox(height: 15),
           const Text(
             "Description",
@@ -101,7 +102,6 @@ class PreviousRecordBody extends StatelessWidget {
     );
   }
 
-  // قسم التوصيات - Recommend Section
   Widget _buildRecommendSection() {
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -115,7 +115,8 @@ class PreviousRecordBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel("Environmental Recommendations", Icons.wb_sunny_outlined, Colors.orange),
+          _sectionLabel("Environmental Recommendations",
+              Icons.wb_sunny_outlined, Colors.orange),
           const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,15 +130,20 @@ class PreviousRecordBody extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF43A047), Color(0xFF66BB6A)]),
+              gradient: const LinearGradient(
+                  colors: [Color(0xFF43A047), Color(0xFF66BB6A)]),
               borderRadius: BorderRadius.circular(15),
             ),
             child: const Column(
               children: [
-                Text("Recommended Plant", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text("Recommended Plant",
+                    style: TextStyle(color: Colors.white70, fontSize: 12)),
                 Text(
                   "Lettuce (Organic Variant)",
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -147,13 +153,14 @@ class PreviousRecordBody extends StatelessWidget {
     );
   }
 
-  // أدوات مساعدة للواجهة (Helper Widgets)
   Widget _sectionLabel(String title, IconData icon, Color color) {
     return Row(
       children: [
         Icon(icon, color: color, size: 20),
         const SizedBox(width: 8),
-        Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        Text(title,
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
       ],
     );
   }
@@ -169,7 +176,9 @@ class PreviousRecordBody extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: Colors.blueGrey),
               const SizedBox(width: 5),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(value,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
             ],
           ),
         ],
@@ -184,8 +193,11 @@ class PreviousRecordBody extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Confidence", style: TextStyle(color: Colors.grey, fontSize: 12)),
-            Text("${(progress * 100).toInt()}%", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+            const Text("Confidence",
+                style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Text("${(progress * 100).toInt()}%",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.green)),
           ],
         ),
         const SizedBox(height: 6),
@@ -217,7 +229,8 @@ class PreviousRecordBody extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10)),
+              Text(label,
+                  style: const TextStyle(color: Colors.grey, fontSize: 10)),
               Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),

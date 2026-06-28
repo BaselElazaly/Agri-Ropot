@@ -25,9 +25,9 @@ class ProfileScreen extends StatelessWidget {
         var cubit = AppCubit.get(context);
         String profileImage = cubit.profileImageUrl ?? '';
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFAFAFA),
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: const Color(0xFFFAFAFA),
             elevation: 0,
             centerTitle: true,
             leading: Padding(
@@ -132,12 +132,12 @@ class ProfileScreen extends StatelessWidget {
                                   placeholder: (context, url) => CircleAvatar(
                                     radius: 72,
                                     backgroundColor: Colors.grey.shade300,
-                                    backgroundImage: AssetImage('assets/images/profile_pic.png'), 
+                                    backgroundImage: AssetImage('assets/images/profile_pic2.png'), 
                                   ),
                                   errorWidget: (context, url, error) => CircleAvatar(
                                     radius: 72,
                                     backgroundColor: Colors.grey.shade300,
-                                    backgroundImage: AssetImage('assets/images/profile_pic.png'), 
+                                    backgroundImage: AssetImage('assets/images/profile_pic2.png'), 
                                   ),
                                 ),
                               ),

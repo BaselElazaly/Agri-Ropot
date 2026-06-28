@@ -8,13 +8,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
-// استيراد المكتبة الجديدة
+
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PlantDetailsScreen extends StatefulWidget {
-  // المستقبل الآن هو الموديل بالكامل الذي يحتوي على الصورة وقائمة التشخيصات
   final DetectionModel model;
-  final String? date; // التاريخ غالباً بيجي موحد للفحص ككل
+  final String? date;
 
   const PlantDetailsScreen({
     Key? key,
@@ -27,24 +26,22 @@ class PlantDetailsScreen extends StatefulWidget {
 }
 
 class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
-  // كنترولر للتحكم في السلايدر ومعرفة الصفحة الحالية
   final PageController _pageController = PageController();
 
   @override
   void dispose() {
-    _pageController.dispose(); // تنظيف الذاكرة
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // التأكد من وجود بيانات تشخيص، إذا لم يوجد نعتبرها صورة صحية افتراضياً أو نتعامل معها
     bool hasDetections =
         widget.model.detections != null && widget.model.detections!.isNotEmpty;
     int itemCount = hasDetections ? widget.model.detections!.length : 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFC),
+      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,24 +65,19 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.w700)),
         centerTitle: true,
-        // إضافة أيقونة القائمة الجانبية كما في الصورة الجديدة
-        
       ),
       body: Column(
         children: [
-          // 1. الجزء الثابت: الصورة والتاريخ
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // الصورة الكبيرة (ثابتة)
                 FadeInDown(
                   child: _buildStaticImage(),
                 ),
                 const SizedBox(height: 15),
-                // التاريخ (ثابت)
                 FadeInLeft(
                   child: Row(
                     children: [
@@ -106,8 +98,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
               ],
             ),
           ),
-
-          // 2. الجزء المتحرك (Slider) باستخدام PageView
           Expanded(
             child: hasDetections
                 ? PageView.builder(
@@ -115,11 +105,9 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     itemCount: itemCount,
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
-                      // جلب بيانات التشخيص الحالي بناءً على الـ index
                       final detection = widget.model.detections![index];
                       return FadeIn(
                         child: SingleChildScrollView(
-                          // للسماح بالتمرير الرأسي داخل كل صفحة لو المحتوى كتير
                           physics: const BouncingScrollPhysics(),
                           child: Padding(
                             padding:
@@ -130,12 +118,8 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                       );
                     },
                   )
-                : Center(
-                    child: Text(
-                        "No objects detected")), // حالة عدم وجود بيانات
+                : Center(child: Text("No objects detected")),
           ),
-
-          // 3. مؤشر الصفحات (Dots Indicator) - ثابت في الأسفل
           if (hasDetections && itemCount > 1)
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0, top: 10),
@@ -144,29 +128,27 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                   controller: _pageController,
                   count: itemCount,
                   effect: ExpandingDotsEffect(
-                    activeDotColor: ColorManager
-                        .greenColor, // اللون الأخضر من ملف الألوان بتاعك
+                    activeDotColor: ColorManager.greenColor,
                     dotColor: Colors.grey.shade300,
                     dotHeight: 8,
                     dotWidth: 8,
-                    expansionFactor:
-                        3, // تأثير التمدد للنقطة النشطة كما في الصورة
+                    expansionFactor: 3,
                     spacing: 6,
                   ),
                 ),
               ),
             ),
-          const SizedBox(height: 10), // مسافة إضافية للـ Bottom Navigation Bar
+          const SizedBox(height: 10),
         ],
       ),
-      // زر الشات العائم (كما في الصورة الجديدة)
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // جلب الـ index الحالي للـ PageView لمعرفة النبات المعروض حالياً
-          int currentIndex = _pageController.hasClients ? (_pageController.page?.round() ?? 0) : 0;
-          
-          // التأكد من وجود بيانات قبل إرسالها
-          if (widget.model.detections != null && widget.model.detections!.isNotEmpty) {
+          int currentIndex = _pageController.hasClients
+              ? (_pageController.page?.round() ?? 0)
+              : 0;
+
+          if (widget.model.detections != null &&
+              widget.model.detections!.isNotEmpty) {
             final currentDetection = widget.model.detections![currentIndex];
             String label = currentDetection.label ?? "Unknown Plant";
             double confidence = currentDetection.confidence ?? 0.0;
@@ -185,20 +167,18 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         backgroundColor: Colors.white,
         shape: const CircleBorder(),
         elevation: 4,
-
         child: ClipOval(
-        child: Image.asset(
-          'assets/images/AiChat.jpeg',
-          width: 40, 
-          fit: BoxFit.cover, 
+          child: Image.asset(
+            'assets/images/AiChat.jpeg',
+            width: 40,
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  // ويدجت لبناء الصورة الثابتة مع زر التكبير
   Widget _buildStaticImage() {
     return GestureDetector(
       onTap: () {
@@ -220,7 +200,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
           children: [
             Container(
               width: double.infinity,
-              height: 220, // زيادة الطول قليلاً ليناسب الصورة الجديدة
+              height: 220,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 color: Colors.white,
@@ -246,7 +226,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     : const Center(child: Icon(Icons.image_not_supported)),
               ),
             ),
-            // زر الـ Scan الأخضر الصغير على الصورة
             Positioned(
               bottom: 15,
               right: 15,
@@ -266,14 +245,11 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
     );
   }
 
-  // ويدجت لبناء المحتوى القابل للسحب (اسم المرض، الكروت) لكل عنصر تشخيص
   Widget _buildSwipeableContent(DetectionItem detection) {
-    // تحديد هل النبات صحي بناءً على الليبل (أو الكونفدنس لو حابب)
     bool isHealthy =
         detection.label?.toLowerCase().contains('healthy') ?? false;
     Color healthColor = isHealthy ? const Color(0xFF2D8A4E) : Colors.redAccent;
 
-    // تحويل قائمة الريكومنديشن لنص مفصول بنقاط (Bullets)
     String recommendationsText = (detection.recommendation != null &&
             detection.recommendation!.isNotEmpty)
         ? detection.recommendation!.map((e) => '• $e').join('\n')
@@ -283,7 +259,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
-        // 1. اسم النبتة والتشخيص مع علامة التوثيق
         Row(
           children: [
             Expanded(
@@ -296,51 +271,40 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     color: Colors.black),
               ),
             ),
-            
           ],
         ),
         const SizedBox(height: 20),
-
-        // 2. كارت نسبة التأكيد (AI Confidence) - تم تحديث الشكل ليطابق الصورة
         _buildConfidenceCard(
           confValue: detection.confidence ?? 0,
           healthColor: healthColor,
         ),
         const SizedBox(height: 18),
-
-        // 3. كارت الـ Status
         _buildSection(
           title: 'Status',
-          // استخدام الـ status القادم من الـ API
           content: (detection.status != null && detection.status!.isNotEmpty)
               ? detection.status!
               : (isHealthy
                   ? 'Your plant is in excellent condition.'
                   : 'Issue detected.'),
-          icon: "assets/images/info.png", // تأكد من وجود الصور في الـ assets
+          icon: "assets/images/info.png",
           bgColor: const Color(0xFFF3F9F5),
           accentColor: const Color(0xFF2D8A4E),
-          sideImage: "assets/images/plant.png", // صورة الأصيص
+          sideImage: "assets/images/plant.png",
         ),
         const SizedBox(height: 18),
-
-        // 4. كارت الـ Recommendations
         _buildSectionR(
           title: 'Recommendations',
           content: recommendationsText,
           icon: "assets/images/bulb.png",
           bgColor: const Color(0xFFFFF9ED),
           accentColor: const Color(0xFFDCA529),
-          sideImage: "assets/images/watering_can.png", // صورة الرشاش
+          sideImage: "assets/images/watering_can.png",
         ),
-        const SizedBox(height: 30), // مسافة نهائية داخل السلايدر
+        const SizedBox(height: 30),
       ],
     );
   }
 
-  // --- الهيلبر ويدجت (تم تحديثها لتطابق الديزاين الجديد) ---
-
-  // كارت الـ Confidence الجديد (شكل مدمج مع بروجرس بار ورسالة توضيحية)
   Widget _buildConfidenceCard({
     required double confValue,
     required Color healthColor,
@@ -350,7 +314,7 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100), // إطار خفيف جداً
+        border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -364,12 +328,13 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         children: [
           Row(
             children: [
-              // أيقونة AI
               Image.asset(
                 'assets/images/AiConfidence.png',
                 width: 30,
               ),
-              const SizedBox(width: 5,),
+              const SizedBox(
+                width: 5,
+              ),
               const Text(
                 'AI Confidence',
                 style: TextStyle(
@@ -378,36 +343,31 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     fontWeight: FontWeight.w600,
                     color: Colors.black87),
               ),
-              // أيقونة معلومات صغيرة
               const SizedBox(width: 5),
               Icon(Icons.info_outline, size: 16, color: Colors.grey.shade400),
               const Spacer(),
-              // النسبة المئوية
               Text(
                 '${confValue.toStringAsFixed(1)}%',
                 style: TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color:
-                      const Color(0xFF2E7D32), // اللون الأخضر الغامق في الصورة
+                  color: const Color(0xFF2E7D32),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          // البروجرس بار
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
               value: confValue / 100,
               backgroundColor: Colors.grey.shade100,
-              color: const Color(0xFF4CAF50), // لون أخضر فاتح للبار
+              color: const Color(0xFF4CAF50),
               minHeight: 8,
             ),
           ),
           const SizedBox(height: 10),
-          // نص توضيحي صغير تحت البار (كما في الصورة)
           Text(
             "This is the confidence score of the AI model for this result.",
             style: TextStyle(
@@ -421,7 +381,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
     );
   }
 
-  // ويدجت موحدة للـ Status والـ Recommendations (تم دمج _buildSection و _buildSection2)
   Widget _buildSection({
     required String title,
     required String content,
@@ -436,22 +395,18 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
-          // حذف البوردر الخارجي ليكون أنظف مثل الصورة الجديدة
         ),
         child: Row(
-          // 1. الـ Row الخارجي معمول Center عشان يخلي الصورة الجانبية في النص عمودياً
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 2. حطينا الأيقونة والنص جوه Row داخلي واخد Start عشان يبدأوا من فوق
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // الأيقونة الدائرية
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
-                      color: Colors.white, // خلفية بيضاء للأيقونة
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset(
@@ -462,7 +417,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // النص
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,8 +448,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            // 3. الصورة الجانبية بقت مباشرة جوه الـ Row الخارجي المتسنتر
-            // فبالتالي هتيجي في النص بالظبط مهما كان طول النص اللي جنبها
             Image.asset(sideImage, width: 50, height: 50, fit: BoxFit.contain),
           ],
         ));
@@ -515,22 +467,18 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
-          // حذف البوردر الخارجي ليكون أنظف مثل الصورة الجديدة
         ),
         child: Row(
-          // 1. الـ Row الخارجي معمول Center عشان يخلي الصورة الجانبية في النص عمودياً
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 2. حطينا الأيقونة والنص جوه Row داخلي واخد Start عشان يبدأوا من فوق
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // الأيقونة الدائرية
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
-                      color: Colors.white, // خلفية بيضاء للأيقونة
+                      color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset(
@@ -541,7 +489,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // النص
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,8 +520,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            // 3. الصورة الجانبية بقت مباشرة جوه الـ Row الخارجي المتسنتر
-            // فبالتالي هتيجي في النص بالظبط مهما كان طول النص اللي جنبها
             Image.asset(sideImage, width: 50, height: 50, fit: BoxFit.contain),
           ],
         ));
@@ -591,7 +536,6 @@ class _PlantDetailsScreenState extends State<PlantDetailsScreen> {
   }
 }
 
-// سكرينة الزوم (تبقى كما هي تقريباً مع تحديث بسيط للأيقونة)
 class PlantImageZoomScreen extends StatelessWidget {
   final String imageUrl;
   final String label;
@@ -610,7 +554,7 @@ class PlantImageZoomScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white), // أيقونة إغلاق
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),

@@ -11,7 +11,8 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -20,13 +21,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500), 
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutBack, 
+      curve: Curves.easeOutBack,
     );
 
     _controller.forward();
@@ -36,15 +37,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   void dispose() {
-    _controller.dispose(); 
+    _controller.dispose();
     super.dispose();
   }
 
   Future<void> navigateToNextScreen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool onboardingCompleted = prefs.getBool("onboardingCompleted") ?? false;
-    
-    // ⬇️ قراءة التوكن من الـ SharedPreferences ⬇️
+
     String? token = prefs.getString("token");
 
     Timer(const Duration(seconds: 2), () {
@@ -52,17 +52,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
       Widget nextScreen;
 
-      // بناءً على البيانات، نحدد الشاشة القادمة
       if (onboardingCompleted) {
         if (token != null && token.isNotEmpty) {
-          // التوكن موجود -> المستخدم مسجل دخول مسبقاً
-          nextScreen = const AppLayout(); // 🔴 استبدل HomeScreen باسم الشاشة الرئيسية لتطبيقك
+          nextScreen = const AppLayout();
         } else {
-          // لا يوجد توكن -> يجب تسجيل الدخول
           nextScreen = LoginPage();
         }
       } else {
-        // لم ينهي شاشات البداية
         nextScreen = Boardina1Screen();
       }
 
@@ -78,16 +74,21 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       backgroundColor: Colors.black,
+      backgroundColor: Colors.black,
       body: Stack(
         alignment: AlignmentGeometry.center,
         children: [
-          Image.asset('assets/images/splash_bg.png', fit: BoxFit.cover, width: double.infinity, height: double.infinity,),
+          Image.asset(
+            'assets/images/splash_bg.png',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
           Center(
             child: FadeTransition(
               opacity: _controller,
               child: ScaleTransition(
-                scale: _animation, 
+                scale: _animation,
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 220,

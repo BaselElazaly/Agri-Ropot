@@ -68,9 +68,8 @@ class _ScanScreenState extends State<ScanScreen>
   void _startRealScan() {
     if (_capturedImage != null) {
       setState(() => _isScanning = true);
-      _animationController.forward(); // شغل الانميشن
+      _animationController.forward();
 
-      // ابعت الصورة للباك إند
       AppCubit.get(context).scanPlant(File(_capturedImage!.path));
     }
   }
@@ -96,34 +95,31 @@ class _ScanScreenState extends State<ScanScreen>
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppStates>(
-     listener: (context, state) {
-        // لو التحليل نجح
+      listener: (context, state) {
         if (state is ScanPlantSuccessState) {
           setState(() {
             _isScanning = false;
             _animationController.stop();
             _animationController.reset();
           });
-          
-          // نروح لصفحة التفاصيل ونبعتلها الموديل اللي رجع من الباك
+
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => PlantDetailsScreen(
                 model: state.detectionModel,
-                date: state.detectionModel.receivedDate ?? DateTime.now().toIso8601String(),
+                date: state.detectionModel.receivedDate ??
+                    DateTime.now().toIso8601String(),
               ),
             ),
           );
-        } 
-        // لو حصل خطأ في التحليل
-        else if (state is ScanPlantErrorState) {
+        } else if (state is ScanPlantErrorState) {
           setState(() {
             _isScanning = false;
             _animationController.stop();
             _animationController.reset();
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Error: ${state.error}'),
@@ -171,7 +167,8 @@ class _ScanScreenState extends State<ScanScreen>
                     ),
                   ),
                 if (_capturedImage == null) _buildBottomButtons(),
-                if (_capturedImage != null && !_isScanning) _buildPreviewActions(),
+                if (_capturedImage != null && !_isScanning)
+                  _buildPreviewActions(),
                 if (_isScanning)
                   Align(
                     alignment: Alignment.center,

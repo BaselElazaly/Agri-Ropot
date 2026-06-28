@@ -5,11 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_svg/svg.dart';
 
-// تأكد من استدعاء الـ Cubit والـ States الخاصة بك هنا
-// import 'chat_cubit.dart';
-// import 'chat_states.dart';
-// import 'package:agre_lens_app/shared/styles/colors.dart';
-
 class AiChatScreen extends StatelessWidget {
   final String plantLabel;
   final double confidence;
@@ -23,7 +18,6 @@ class AiChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // تهيئة الـ Cubit وإضافة الرسالة الثابتة أول ما السكرينة تفتح
       create: (context) => ChatCubit()..initChat(plantLabel, confidence),
       child: const _AiChatView(),
     );
@@ -41,7 +35,6 @@ class _AiChatViewState extends State<_AiChatView> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // قائمة الاقتراحات الثابتة
   final List<String> suggestions = [
     "Best soil? 🌱",
     "Signs of disease?",
@@ -49,7 +42,6 @@ class _AiChatViewState extends State<_AiChatView> {
     "When to prune? ✂️"
   ];
 
-  // دالة للنزول لآخر الشات تلقائياً
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -72,9 +64,8 @@ class _AiChatViewState extends State<_AiChatView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FAF6),
+      backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
-        // ... نفس كود الـ AppBar بدون تغيير
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
@@ -102,12 +93,6 @@ class _AiChatViewState extends State<_AiChatView> {
                 color: const Color(0xFF3B7254).withOpacity(0.8),
               ),
             ),
-            // const SizedBox(height: 4),
-            // Container(
-            //   width: 40,
-            //   height: 2,
-            //   color: const Color(0xFF3B7254).withOpacity(0.5),
-            // )
           ],
         ),
         centerTitle: true,
@@ -124,7 +109,6 @@ class _AiChatViewState extends State<_AiChatView> {
 
           return Column(
             children: [
-              // 1. منطقة عرض الرسائل
               Expanded(
                 child: ListView.builder(
                   controller: _scrollController,
@@ -145,11 +129,7 @@ class _AiChatViewState extends State<_AiChatView> {
                   },
                 ),
               ),
-
-              // 2. منطقة الاقتراحات (ثابتة وقابلة للتمرير الأفقي)
               _buildSuggestionsArea(cubit),
-
-              // 3. منطقة إدخال النص
               _buildInputArea(context, cubit),
             ],
           );
@@ -158,11 +138,9 @@ class _AiChatViewState extends State<_AiChatView> {
     );
   }
 
-  // ويدجت جديدة مخصصة للاقتراحات عشان تفضل ثابتة
-  // ويدجت الاقتراحات الثابتة (شكل شبكة 2x2 زي الصورة)
   Widget _buildSuggestionsArea(ChatCubit cubit) {
     return Container(
-      width: double.infinity, // عشان ياخد العرض كله والـ Wrap يسنترهم
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         border: const Border(
@@ -171,31 +149,29 @@ class _AiChatViewState extends State<_AiChatView> {
             width: 0.3,
           ),
         ),
-        color: const Color(0xFFF6FAF6), // نفس لون الخلفية
+        color: const Color(0xFFFAFAFA),
       ),
       child: Wrap(
-        alignment: WrapAlignment.center, // توسيط الاقتراحات في الشاشة
-        spacing: 12, // المسافة الأفقية بين كل زرار والتاني
-        runSpacing: 12, // المسافة الرأسية بين الصف الأول والتاني
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
         children: suggestions.map((suggestion) {
           return GestureDetector(
             onTap: () {
               cubit.sendMessage(suggestion);
             },
             child: Container(
-              // حطينا mainAxisSize.min جوا الـ Row لو هنستخدم أيقونات، أو نسيبها نص بس
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F3EA),
                 borderRadius: BorderRadius.circular(20),
-                // إطار خفيف جداً لو حابب تبرزه أكتر
                 border: Border.all(color: Colors.grey, width: 0.5),
               ),
               child: Text(
                 suggestion,
                 style: const TextStyle(
                   fontFamily: 'Roboto',
-                  color: Color(0xFF2D8A4E), // اللون الأخضر الغامق للنص
+                  color: Color(0xFF2D8A4E),
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -207,7 +183,6 @@ class _AiChatViewState extends State<_AiChatView> {
     );
   }
 
-  // ويدجت إدخال النص بعد تعديل الألوان
   Widget _buildInputArea(BuildContext context, ChatCubit cubit) {
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
@@ -224,21 +199,18 @@ class _AiChatViewState extends State<_AiChatView> {
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(color: const Color(0xFFCDE2D2), width: 1),
               ),
-              // هنا التعديل السحري للألوان
               child: Theme(
                 data: Theme.of(context).copyWith(
                   textSelectionTheme: const TextSelectionThemeData(
-                    cursorColor: Color(0xFF3B7254), // لون مؤشر الكتابة
-                    selectionColor: Color(0xFFCDE2D2), // لون تظليل النص
-                    selectionHandleColor:
-                        Color(0xFF3B7254), // لون النقطتين بتوع النسخ
+                    cursorColor: Color(0xFF3B7254),
+                    selectionColor: Color(0xFFCDE2D2),
+                    selectionHandleColor: Color(0xFF3B7254),
                   ),
                 ),
                 child: TextField(
                   controller: _msgController,
-                  cursorColor: const Color(0xFF3B7254), // تأكيد على لون المؤشر
-                  style: const TextStyle(
-                      color: Colors.black87), // لون النص المكتوب
+                  cursorColor: const Color(0xFF3B7254),
+                  style: const TextStyle(color: Colors.black87),
                   decoration: const InputDecoration(
                     hintText: "Ask about your plant...",
                     hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
@@ -277,7 +249,6 @@ class _AiChatViewState extends State<_AiChatView> {
     );
   }
 
-  // ويدجت فقاعة الرسالة (Chat Bubble)
   Widget _buildMessageBubble(ChatMessage message) {
     bool isMe = message.isUser;
 
@@ -289,7 +260,6 @@ class _AiChatViewState extends State<_AiChatView> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMe) ...[
-            // أيقونة البوت (ورقة شجر)
             Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.all(8),
@@ -304,9 +274,7 @@ class _AiChatViewState extends State<_AiChatView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
               decoration: BoxDecoration(
-                color: isMe
-                    ? const Color(0xFF3B7254)
-                    : Colors.white, // ألوان مطابقة للصورة
+                color: isMe ? const Color(0xFF3B7254) : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
@@ -340,7 +308,6 @@ class _AiChatViewState extends State<_AiChatView> {
             ),
           ),
           if (isMe) ...[
-            // صورة مصغرة لليوزر لو حابب تضيفها (اختياري)
             const SizedBox(width: 8),
             const CircleAvatar(
               radius: 14,
@@ -353,8 +320,6 @@ class _AiChatViewState extends State<_AiChatView> {
     );
   }
 
-  // ويدجت إدخال الن
-  // مؤشر الكتابة (Typing Indicator)
   Widget _buildTypingIndicator() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -400,11 +365,9 @@ class _AiChatViewState extends State<_AiChatView> {
 
   Widget _dotAnimation(int delay) {
     return Flash(
-      // استبدلنا FadeIn بـ Flash
       delay: Duration(milliseconds: delay),
-      infinite: true, // دلوقتي هتشتغل بدون أي مشاكل
-      duration: const Duration(
-          milliseconds: 1000), // تقدر تتحكم في سرعة النبضة من هنا
+      infinite: true,
+      duration: const Duration(milliseconds: 1000),
       child: Container(
         width: 6,
         height: 6,

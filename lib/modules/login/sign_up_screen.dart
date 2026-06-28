@@ -37,14 +37,15 @@ class _SignUpPageState extends State<SignUpPage> {
         listener: (context, state) {
           if (state is AppRegisterSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.green),
+              SnackBar(
+                  content: Text(state.message), backgroundColor: Colors.green),
             );
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const LoginPage()),
             );
           }
-          
+
           if (state is AppRegisterErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error), backgroundColor: Colors.red),
@@ -53,7 +54,7 @@ class _SignUpPageState extends State<SignUpPage> {
         },
         builder: (context, state) {
           var cubit = AppCubit.get(context);
-          
+
           bool isLoading = state is AppRegisterLoadingState;
 
           return SingleChildScrollView(
@@ -92,7 +93,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ],
                   ),
-                  
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 36),
                     child: Column(
@@ -110,7 +110,6 @@ class _SignUpPageState extends State<SignUpPage> {
                           },
                         ),
                         const SizedBox(height: 15),
-
                         defaultFormField(
                           context: context,
                           controller: emailController,
@@ -120,23 +119,22 @@ class _SignUpPageState extends State<SignUpPage> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
                             }
-                            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                .hasMatch(value)) {
                               return 'Please enter a valid email';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 15),
-
                         defaultFormField(
                           context: context,
                           controller: phoneController,
                           labelText: 'Phone Number (Optional)',
                           type: TextInputType.phone,
-                          validator: (String? value) => null, // Optional
+                          validator: (String? value) => null,
                         ),
                         const SizedBox(height: 15),
-
                         defaultFormField(
                           context: context,
                           controller: passwordController,
@@ -145,7 +143,9 @@ class _SignUpPageState extends State<SignUpPage> {
                           labelText: 'Password',
                           suffixIcon: IconButton(
                             icon: Icon(
-                              !isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              !isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.grey,
                             ),
                             onPressed: () {
@@ -155,31 +155,31 @@ class _SignUpPageState extends State<SignUpPage> {
                             },
                           ),
                           validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
 
-                          if (!RegExp(r'[0-9]').hasMatch(value)) {
-                            return 'Must contain at least one digit (0-9)';
-                          }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
 
-                          if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                            return 'Must contain at least one uppercase letter';
-                          }
+                            if (!RegExp(r'[0-9]').hasMatch(value)) {
+                              return 'Must contain at least one digit (0-9)';
+                            }
 
-                          if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                            return 'Must contain at least one special character (@#!)';
-                          }
+                            if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                              return 'Must contain at least one uppercase letter';
+                            }
 
-                          return null; 
-                        },
+                            if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                .hasMatch(value)) {
+                              return 'Must contain at least one special character (@#!)';
+                            }
+
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 15),
-
                         defaultFormField(
                           context: context,
                           controller: confirmPasswordController,
@@ -188,12 +188,15 @@ class _SignUpPageState extends State<SignUpPage> {
                           labelText: 'Confirm Password',
                           suffixIcon: IconButton(
                             icon: Icon(
-                              !isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              !isConfirmPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.grey,
                             ),
                             onPressed: () {
                               setState(() {
-                                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                                isConfirmPasswordVisible =
+                                    !isConfirmPasswordVisible;
                               });
                             },
                           ),
@@ -207,11 +210,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             return null;
                           },
                         ),
-                        
                         const SizedBox(height: 30),
-
                         isLoading
-                            ? Center(child: CircularProgressIndicator(color: ColorManager.greenColor))
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                    color: ColorManager.greenColor))
                             : defaultButton(
                                 onTap: () {
                                   if (formkey.currentState!.validate()) {
@@ -219,7 +222,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                       fullName: nameController.text,
                                       email: emailController.text,
                                       password: passwordController.text,
-                                      confirmPassword: confirmPasswordController.text,
+                                      confirmPassword:
+                                          confirmPasswordController.text,
                                       phone: phoneController.text,
                                     );
                                   }
@@ -235,9 +239,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                               ),
-                        
                         const SizedBox(height: 20),
-                        
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

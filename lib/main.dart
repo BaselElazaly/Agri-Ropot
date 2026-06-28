@@ -1,17 +1,13 @@
+import 'package:agre_lens_app/core/bloc_observer.dart';
+import 'package:agre_lens_app/modules/history/cubit/cubit.dart';
 import 'package:agre_lens_app/modules/splash/splash_screen.dart';
-import 'package:agre_lens_app/shared/bloc_observer.dart';
 import 'package:agre_lens_app/shared/cubit/cubit.dart';
 import 'package:agre_lens_app/shared/network/local/cash_helper.dart';
 import 'package:agre_lens_app/shared/network/remote/dio_helper.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'firebase_options.dart';
-
-
 
 void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -19,15 +15,16 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
   ));
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
   await CacheHelper.init();
-  Bloc.observer = MyBlocObserver();
+  Bloc.observer = AppBlocObserver();
   DioHelper.init();
   runApp(
-    BlocProvider(
-      create: (context) => AppCubit(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AppCubit()),
+        BlocProvider(create: (context) => ScanningCubit()),
+      ],
       child: MyApp(),
     ),
   );
@@ -36,11 +33,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: Color(0xFFFEF7FF)
-      ),
+      theme: ThemeData(scaffoldBackgroundColor: const Color(0xFFFAFAFA)),
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );

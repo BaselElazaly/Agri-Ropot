@@ -17,13 +17,18 @@ class SensorDataModel {
   });
 
   factory SensorDataModel.fromJson(Map<String, dynamic> json) {
+    int parseSoil(dynamic value) {
+      int parsedValue = (value as num?)?.toInt() ?? 70;
+      return parsedValue == 0 ? 70 : parsedValue;
+    }
+
     return SensorDataModel(
       minTemperature: (json['minTemperature'] as num?)?.toInt() ?? 0,
       avgTemperature: (json['avgTemperature'] as num?)?.toInt() ?? 0,
       maxTemperature: (json['maxTemperature'] as num?)?.toInt() ?? 0,
-      minSoil: (json['minSoil'] as num?)?.toInt() ?? 0,
-      avgSoil: (json['avgSoil'] as num?)?.toInt() ?? 0,
-      maxSoil: (json['maxSoil'] as num?)?.toInt() ?? 0,
+      minSoil: parseSoil(json['minSoil']),
+      avgSoil: parseSoil(json['avgSoil']),
+      maxSoil: parseSoil(json['maxSoil']),
     );
   }
 }

@@ -52,7 +52,8 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.green.shade900),
+              style:
+                  TextButton.styleFrom(foregroundColor: Colors.green.shade900),
             ),
           ),
           child: child!,
@@ -84,7 +85,8 @@ class _ReportScreenState extends State<ReportScreen> {
               dialHandColor: Colors.green.shade600,
               dialBackgroundColor: Colors.green[100],
               dayPeriodColor: WidgetStateColor.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) return Colors.green.shade700;
+                if (states.contains(WidgetState.selected))
+                  return Colors.green.shade700;
                 return Colors.white;
               }),
               dayPeriodTextColor: WidgetStateColor.resolveWith((states) {
@@ -109,24 +111,24 @@ class _ReportScreenState extends State<ReportScreen> {
       listener: (context, state) {},
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA), 
+          backgroundColor: const Color(0xFFFAFAFA),
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading:Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Transform.scale(
-                    scale: 0.8,
-                    child: SvgPicture.asset(
-                      'assets/icons/ep_back.svg',
-                      width: 32,
-                      height: 32,
-                    ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: InkWell(
+                onTap: () => Navigator.pop(context),
+                child: Transform.scale(
+                  scale: 0.8,
+                  child: SvgPicture.asset(
+                    'assets/icons/ep_back.svg',
+                    width: 32,
+                    height: 32,
                   ),
                 ),
               ),
+            ),
           ),
           body: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -135,11 +137,11 @@ class _ReportScreenState extends State<ReportScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildReportInfoCard(), 
+                  _buildReportInfoCard(),
                   const SizedBox(height: 25),
                   _buildHeader(),
                   const SizedBox(height: 15),
-                  _buildMainRecordCard(), 
+                  _buildMainRecordCard(),
                   const SizedBox(height: 30),
                 ],
               ),
@@ -150,7 +152,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  // كارت معلومات الريبورت (تصميمك الأصلي مع تحسين بسيط)
   Widget _buildReportInfoCard() {
     return Container(
       width: double.infinity,
@@ -160,7 +161,8 @@ class _ReportScreenState extends State<ReportScreen> {
         color: const Color(0xFFFEF7FF),
         border: Border.all(color: const Color(0xFFD9D9D9), width: 1),
         boxShadow: const [
-          BoxShadow(color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 4))
+          BoxShadow(
+              color: Color(0x1A000000), blurRadius: 8, offset: Offset(0, 4))
         ],
       ),
       child: Row(
@@ -171,21 +173,32 @@ class _ReportScreenState extends State<ReportScreen> {
               children: [
                 Text(
                   'Report ${widget.reportNum}',
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 22),
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w700, fontSize: 22),
                 ),
                 const SizedBox(height: 5),
-                Text('Report Serial', style: GoogleFonts.poppins(fontSize: 12, color: Colors.black45)),
-                Text('${widget.serialNum}', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+                Text('Report Serial',
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Colors.black45)),
+                Text('${widget.serialNum}',
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.black54),
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 14, color: Colors.black54),
                     const SizedBox(width: 5),
-                    Text('02 Jan 2025', style: GoogleFonts.poppins(fontSize: 12, color: Colors.black54)),
+                    Text('02 Jan 2025',
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: Colors.black54)),
                     const SizedBox(width: 15),
-                    const Icon(Icons.access_time, size: 14, color: Colors.black54),
+                    const Icon(Icons.access_time,
+                        size: 14, color: Colors.black54),
                     const SizedBox(width: 5),
-                    Text('11:00 AM', style: GoogleFonts.poppins(fontSize: 12, color: Colors.black54)),
+                    Text('11:00 AM',
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: Colors.black54)),
                   ],
                 )
               ],
@@ -212,20 +225,26 @@ class _ReportScreenState extends State<ReportScreen> {
       builder: (context, value, child) {
         return Opacity(
           opacity: value,
-          child: Transform.translate(offset: Offset(0, 20 * (1 - value)), child: child),
+          child: Transform.translate(
+              offset: Offset(0, 20 * (1 - value)), child: child),
         );
       },
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
-            child: const Icon(Icons.analytics_outlined, color: Colors.green, size: 24),
+            decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1), shape: BoxShape.circle),
+            child: const Icon(Icons.analytics_outlined,
+                color: Colors.green, size: 24),
           ),
           const SizedBox(width: 12),
           Text(
             "Detailed Analysis",
-            style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF2C3E50)),
+            style: GoogleFonts.poppins(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2C3E50)),
           ),
         ],
       ),
@@ -238,13 +257,17 @@ class _ReportScreenState extends State<ReportScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 10))
         ],
       ),
       child: Column(
         children: [
           _buildDiseaseSection(),
-          const Divider(height: 1, indent: 25, endIndent: 25, color: Color(0xFFF1F1F1)),
+          const Divider(
+              height: 1, indent: 25, endIndent: 25, color: Color(0xFFF1F1F1)),
           _buildRecommendSection(),
         ],
       ),
@@ -257,7 +280,8 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel("Detection Results", Icons.biotech_rounded, Colors.redAccent),
+          _sectionLabel(
+              "Detection Results", Icons.biotech_rounded, Colors.redAccent),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -266,13 +290,18 @@ class _ReportScreenState extends State<ReportScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildConfidenceBar(widget.healthPrecentage / 100), // استخدام الداتا القادمة من السكرين
+          _buildConfidenceBar(widget.healthPrecentage / 100),
           const SizedBox(height: 20),
-          Text("Expert Description", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.grey[700])),
+          Text("Expert Description",
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Colors.grey[700])),
           const SizedBox(height: 5),
           Text(
             "Target-like spots with concentric rings. This fungal disease thrives in humid conditions and can spread rapidly if not treated.",
-            style: GoogleFonts.poppins(color: const Color(0xFF5D6D7E), fontSize: 12, height: 1.5),
+            style: GoogleFonts.poppins(
+                color: const Color(0xFF5D6D7E), fontSize: 12, height: 1.5),
           ),
         ],
       ),
@@ -289,7 +318,8 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionLabel("Smart Recommendation", Icons.auto_awesome_outlined, Colors.orange[700]!),
+          _sectionLabel("Smart Recommendation", Icons.auto_awesome_outlined,
+              Colors.orange[700]!),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -302,9 +332,15 @@ class _ReportScreenState extends State<ReportScreen> {
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)]),
+              gradient: const LinearGradient(
+                  colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)]),
               borderRadius: BorderRadius.circular(15),
-              boxShadow: [BoxShadow(color: Colors.green.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4))
+              ],
             ),
             child: Row(
               children: [
@@ -313,8 +349,13 @@ class _ReportScreenState extends State<ReportScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("Best Crop to Plant", style: TextStyle(color: Colors.white70, fontSize: 11)),
-                    Text("Organic Lettuce", style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const Text("Best Crop to Plant",
+                        style: TextStyle(color: Colors.white70, fontSize: 11)),
+                    Text("Organic Lettuce",
+                        style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],
@@ -325,13 +366,17 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  // Widgets مساعدة
   Widget _sectionLabel(String title, IconData icon, Color color) {
     return Row(
       children: [
         Icon(icon, color: color, size: 18),
         const SizedBox(width: 8),
-        Text(title.toUpperCase(), style: GoogleFonts.poppins(color: color, fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 1)),
+        Text(title.toUpperCase(),
+            style: GoogleFonts.poppins(
+                color: color,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                letterSpacing: 1)),
       ],
     );
   }
@@ -347,7 +392,10 @@ class _ReportScreenState extends State<ReportScreen> {
             children: [
               Icon(icon, size: 16, color: Colors.blueGrey[400]),
               const SizedBox(width: 6),
-              Flexible(child: Text(value, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 15))),
+              Flexible(
+                  child: Text(value,
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold, fontSize: 15))),
             ],
           ),
         ],
@@ -362,14 +410,21 @@ class _ReportScreenState extends State<ReportScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Analysis Confidence", style: TextStyle(color: Colors.grey, fontSize: 11)),
-            Text("${(progress * 100).toInt()}%", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+            const Text("Analysis Confidence",
+                style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Text("${(progress * 100).toInt()}%",
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.green)),
           ],
         ),
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: LinearProgressIndicator(value: progress, backgroundColor: Colors.grey[200], color: Colors.green, minHeight: 6),
+          child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.grey[200],
+              color: Colors.green,
+              minHeight: 6),
         ),
       ],
     );
@@ -379,7 +434,10 @@ class _ReportScreenState extends State<ReportScreen> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withOpacity(0.1))),
         child: Row(
           children: [
             Icon(icon, color: Colors.blueAccent, size: 18),
@@ -387,8 +445,11 @@ class _ReportScreenState extends State<ReportScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(color: Colors.grey, fontSize: 9)),
-                Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(label,
+                    style: const TextStyle(color: Colors.grey, fontSize: 9)),
+                Text(value,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 13)),
               ],
             ),
           ],

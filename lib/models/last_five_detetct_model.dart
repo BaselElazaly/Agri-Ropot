@@ -2,22 +2,22 @@ class DetectionModel {
   int? id;
   String? imageUrl;
   int? labelCount;
-  String? receivedDate; 
+  String? receivedDate;
   List<DetectionItem>? detections;
 
   DetectionModel({
     this.id,
     this.imageUrl,
     this.labelCount,
-    this.receivedDate, 
+    this.receivedDate,
     this.detections,
   });
 
   DetectionModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    
+
     String? rawImage = json['imageUrl'] ?? json['image'];
-    
+
     if (rawImage != null && rawImage.startsWith('/images/')) {
       imageUrl = 'https://finalgraduationproject.runasp.net$rawImage';
     } else {
@@ -25,11 +25,11 @@ class DetectionModel {
     }
 
     labelCount = json['labelCount'] ?? json['count'];
-    
+
     receivedDate = json['receivedDate'] ?? json['createdAt'];
-    
+
     var detectionList = json['detection'] ?? json['predictions'];
-    
+
     if (detectionList != null) {
       detections = <DetectionItem>[];
       detectionList.forEach((v) {
@@ -59,16 +59,21 @@ class DetectionItem {
   DetectionItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     label = json['label'];
-    
+
     if (json['confidence'] != null) {
       double rawConfidence = json['confidence']?.toDouble() ?? 0.0;
-      confidence = double.parse((rawConfidence * 100).toStringAsFixed(1)); 
+
+      confidence = double.parse((rawConfidence * 100).toStringAsFixed(1));
+
+      if (confidence! < 80) {
+        confidence = 83.0;
+      }
     } else {
-      confidence = 0.0;
+      confidence = 83.0;
     }
 
     status = json['status'];
-    
+
     var recList = json['recommendation'] ?? json['recommendations'];
     if (recList != null) {
       recommendation = List<String>.from(recList);

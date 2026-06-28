@@ -1,3 +1,5 @@
+import 'package:agre_lens_app/modules/history/cubit/cubit.dart';
+import 'package:agre_lens_app/modules/history/cubit/state.dart';
 import 'package:agre_lens_app/modules/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +20,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   late AppCubit cubit;
+  late ScanningCubit newCubit;
   DateTimeRange? selectedDateRange;
   String startDate = "Select Start";
   String endDate = "Select End";
@@ -29,14 +32,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     DateTimeRange? picked = await showDateRangePicker(
       context: context,
       firstDate: DateTime(now.year - 5),
-      lastDate: now, 
+      lastDate: now,
       initialDateRange: cubit.selectedDateRange,
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: Colors.green,
             hintColor: Colors.green,
-            scaffoldBackgroundColor: Colors.green.shade50,
+            scaffoldBackgroundColor: const Color(0xFFFAFAFA),
             colorScheme: ColorScheme.light(
               primary: Colors.green,
               onPrimary: Colors.white,
@@ -91,13 +94,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-
-
   @override
   void initState() {
     super.initState();
     cubit = AppCubit.get(context);
+    newCubit = context.read<ScanningCubit>();
+    newCubit.getAllScans();
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -109,7 +113,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     cubit.changeBottomSheetState(isShow: false);
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +135,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           child: Scaffold(
             key: scaffoldKey,
             appBar: AppBar(
+              backgroundColor: const Color(0xFFFAFAFA),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: InkWell(
@@ -177,17 +181,51 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ],
             ),
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Expanded(child: historyItemBuilder(context)),
-                  ],
-                ),
-              ),
+            body: BlocBuilder<ScanningCubit, ScanningState>(
+              builder: (context, scanningState) {
+                if (scanningState.requestState == RequestState.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                        color: ColorManager.greenColor),
+                  );
+                }
+
+                if (scanningState.requestState == RequestState.error) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          scanningState.msg,
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            newCubit.getAllScans();
+                          },
+                          child: const Text('Try Again'),
+                        )
+                      ],
+                    ),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: historyItemBuilder(context, newCubit.scansList),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-           ),
+          ),
         );
       },
     );
@@ -199,11 +237,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       cubit.changeBottomSheetState(isShow: false);
     } else {
       PersistentBottomSheetController? bottomSheetController =
-      scaffoldKey.currentState?.showBottomSheet(
-            (context) => Container(
+          scaffoldKey.currentState?.showBottomSheet(
+        (context) => Container(
           height: MediaQuery.of(context).size.height * 0.49,
           decoration: BoxDecoration(
-            color: Color(0xFFFEF7FF),
+            color: const Color(0xFFFAFAFA),
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -229,10 +267,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           onPressed: cubit.isDefault
                               ? null
                               : () {
-                            cubit.resetFilter();
-                            cubit.resetFilter2();
-                            cubit.clearDateRange();
-                          },
+                                  cubit.resetFilter();
+                                  cubit.resetFilter2();
+                                  cubit.clearDateRange();
+                                },
                           child: Text(
                             'Clear',
                             style: GoogleFonts.poppins(
@@ -314,7 +352,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             children: [
                               _dateBox(cubit.startDate),
                               const SizedBox(width: 10),
-                              Text("-", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                              Text("-",
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold)),
                               const SizedBox(width: 10),
                               _dateBox(cubit.endDate),
                             ],
@@ -322,7 +363,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         );
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -333,7 +373,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 color: Color(0xFFE0E8F2),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 5,left: 20,top: 5),
+                padding: const EdgeInsets.only(bottom: 5, left: 20, top: 5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -364,32 +404,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 30,right: 30,top: 15),
+                padding: const EdgeInsets.only(left: 30, right: 30, top: 15),
                 child: InkWell(
-                  onTap: (){
+                  onTap: () {
                     Navigator.pop(context);
                   },
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.05,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: ColorManager.greenColor
-                    ),
+                        borderRadius: BorderRadius.circular(10),
+                        color: ColorManager.greenColor),
                     child: Center(
                       child: Text(
                         'Show results (20)',
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFFEF7FF)
-                        ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFFFEF7FF)),
                       ),
                     ),
                   ),
                 ),
               ),
-
             ],
           ),
         ),
@@ -401,13 +438,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       });
     }
   }
+
   Widget _dateBox(String date) {
     return BlocBuilder<AppCubit, AppStates>(
       builder: (context, state) {
         return Container(
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
           decoration: BoxDecoration(
-            color: Color(0xFFFEF7FF),
+            color: const Color(0xFFFAFAFA),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Color(0xFFE0E8F2)),
           ),
@@ -419,11 +457,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 height: 16,
               ),
               const SizedBox(width: 5),
-              Text(date, style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: Color(0xFF26273A)
-              )),
+              Text(date,
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Color(0xFF26273A))),
             ],
           ),
         );
@@ -431,7 +469,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 }
-
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -445,7 +482,6 @@ class CustomButton extends StatelessWidget {
         var cubit = AppCubit.get(context);
         bool isSelected = cubit.selectedButton == text;
 
-
         return GestureDetector(
           onTap: () {
             cubit.selectButton(text);
@@ -456,10 +492,12 @@ class CustomButton extends StatelessWidget {
             duration: Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
-              color: isSelected ? ColorManager.greenColor.withOpacity(0.3) : Color(0xFFFEF7FF),
+              color: isSelected
+                  ? ColorManager.greenColor.withOpacity(0.3)
+                  : const Color(0xFFFAFAFA),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color:  Color(0xFFE0E8F2),
+                color: Color(0xFFE0E8F2),
               ),
             ),
             child: Text(
@@ -467,7 +505,7 @@ class CustomButton extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color:  Color(0xFF26273A),
+                color: Color(0xFF26273A),
               ),
             ),
           ),
@@ -476,6 +514,7 @@ class CustomButton extends StatelessWidget {
     );
   }
 }
+
 class CustomButton2 extends StatelessWidget {
   final String text;
 
@@ -496,10 +535,12 @@ class CustomButton2 extends StatelessWidget {
             duration: Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             decoration: BoxDecoration(
-              color: isSelected ? ColorManager.greenColor.withOpacity(0.3) : Color(0xFFFEF7FF),
+              color: isSelected
+                  ? ColorManager.greenColor.withOpacity(0.3)
+                  : const Color(0xFFFAFAFA),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color:  Color(0xFFE0E8F2),
+                color: Color(0xFFE0E8F2),
               ),
             ),
             child: Text(
@@ -507,7 +548,7 @@ class CustomButton2 extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color:  Color(0xFF26273A),
+                color: Color(0xFF26273A),
               ),
             ),
           ),
@@ -516,4 +557,3 @@ class CustomButton2 extends StatelessWidget {
     );
   }
 }
-
